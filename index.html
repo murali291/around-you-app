@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 
 <head>
@@ -27,6 +27,7 @@
       </nav>
       <div class="nav-actions">
         <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+        <button id="authToggleBtn" class="btn-secondary">Sign In</button>
       </div>
     </header>
 
@@ -200,121 +201,39 @@
 
   <div id="toast" class="toast"></div>
 
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-  <script src="script.js"></script>
-</body>
-
-</html>
-        <p>Top dining spots in Indiranagar.</p>
-        <ul>
-          <li>💰 ₹300-800 | #1 Grain</li>
-          <li>💰 ₹200-600 | Fava</li>
-          <li>💰 ₹400-1000 | Little Italy</li>
-        </ul>
-        <p class="card-meta">⏰ 11:00 AM - 11:00 PM</p>
+  <div id="authOverlay" class="auth-overlay hidden">
+    <div class="auth-modal">
+      <button type="button" class="auth-close" id="authCloseBtn" aria-label="Close auth modal">×</button>
+      <div class="auth-header">
+        <h2 id="authFormTitle">Sign In</h2>
+        <p id="authFormSubtitle">Access your favorites and personalize your search.</p>
       </div>
-
-      <div class="card" data-category="cafes">
-        <h3>☕ Cafes</h3>
-        <p>Popular coffee shops and brunch stops.</p>
-        <ul>
-          <li>💰 ₹150-300 | Blue Tokai</li>
-          <li>💰 ₹100-250 | DYU Art Cafe</li>
-          <li>💰 ₹80-200 | Cafe Max</li>
-        </ul>
-        <p class="card-meta">⏰ 7:00 AM - 10:00 PM</p>
-      </div>
-
-      <div class="card" data-category="hospitals">
-        <h3>🏥 Hospitals</h3>
-        <p>Trusted healthcare in Indiranagar.</p>
-        <ul>
-          <li>🏥 Apollo Cradle</li>
-          <li>🏥 Narayana Multispeciality</li>
-          <li>🏥 Cloudnine Hospital</li>
-        </ul>
-        <p class="card-meta">⏰ 24/7 Emergency</p>
-      </div>
-
-      <div class="card" data-category="gyms">
-        <h3>🏋️ Gyms</h3>
-        <p>Fitness centers near Indiranagar.</p>
-        <ul>
-          <li>💪 ₹3000/mo | Cult.fit</li>
-          <li>💪 ₹2500/mo | Snap Fitness</li>
-          <li>💪 ₹2000/mo | Gympik</li>
-        </ul>
-        <p class="card-meta">⏰ 5:00 AM - 10:00 PM</p>
-      </div>
-
-      <div class="card" data-category="parks">
-        <h3>🌳 Parks</h3>
-        <p>Relax in nearby green spaces.</p>
-        <ul>
-          <li>🆓 Milkyway Park</li>
-          <li>🆓 100 Feet Road Park</li>
-          <li>🆓 Pinnacle Park</li>
-        </ul>
-        <p class="card-meta">⏰ 6:00 AM - 7:00 PM</p>
-      </div>
-
-      <div class="card" data-category="pubs">
-        <h3>🍻 Pubs & Dining</h3>
-        <p>Popular hangout spots in Indiranagar.</p>
-        <ul>
-          <li>💰 ₹500-1200 | Toit</li>
-          <li>💰 ₹400-1000 | Arbor Brewing</li>
-          <li>💰 ₹600-1500 | Smoke House Deli</li>
-        </ul>
-        <p class="card-meta">⏰ 11:00 AM - Midnight</p>
+      <form id="authForm">
+        <div class="auth-tabs">
+          <button type="button" class="auth-tab active" data-mode="signIn">Sign In</button>
+          <button type="button" class="auth-tab" data-mode="signUp">Sign Up</button>
+        </div>
+        <div class="auth-fields">
+          <label for="authEmail">Email</label>
+          <input type="email" id="authEmail" name="authEmail" placeholder="you@example.com" required />
+          <label for="authPassword">Password</label>
+          <input type="password" id="authPassword" name="authPassword" placeholder="Enter a secure password" required />
+          <div id="confirmPasswordWrapper" class="hidden">
+            <label for="authConfirmPassword">Confirm Password</label>
+            <input type="password" id="authConfirmPassword" name="authConfirmPassword" placeholder="Re-enter your password" />
+          </div>
+        </div>
+        <button type="submit" class="btn-primary" id="authSubmitBtn">Sign In</button>
+        <p class="auth-note" id="authNote">No account yet? Create one in seconds.</p>
+      </form>
+      <div class="auth-footer">
+        <p>Demo login uses localStorage only. No backend required.</p>
       </div>
     </div>
-  </section>
-
-  <!-- LOCATION SECTION -->
-
-  <section class="location-section">
-    <h2>Your Location</h2>
-
-    <p id="locationText">Detecting location...</p>
-  </section>
-
-  <!-- MAP SECTION -->
-
-  <section class="map-section">
-    <div id="map"></div>
-  </section>
-
-  <!-- PLACES SECTION -->
-
-  <section class="places-section" id="places">
-    <h2>Nearby Places</h2>
-    <div id="placesContainer"></div>
-  </section>
-
-  <section class="favorites-section" id="favorites">
-    <div class="favorites-header">
-      <h2>Saved Favorites</h2>
-      <button type="button" id="clearFavoritesBtn">Clear All</button>
-    </div>
-    <p class="favorites-status">You can save places to revisit them later.</p>
-    <div id="favoritesContainer"></div>
-  </section>
-
-  <section class="about-section" id="about">
-    <h2>About Around You</h2>
-    <p>This project demonstrates modern frontend skills with responsive layout, live geolocation, interactive mapping using Leaflet, and dynamic place search powered by OpenStreetMap.</p>
-    <p>Use this interface in your presentation to show design, functionality, and real-world utility together.</p>
-  </section>
-  </main>
-
-  <footer class="site-footer">
-    <p>Built with HTML, CSS, and JavaScript · Live map powered by Leaflet · Demo presentation ready</p>
-  </footer>
+  </div>
 
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js"></script>
-
 </body>
 
 </html>

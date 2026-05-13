@@ -148,7 +148,19 @@ const dom = {
   activeCategoryLabel: document.getElementById('activeCategory'),
   markerCountLabel: document.getElementById('markerCount'),
   refreshMapBtn: document.getElementById('refreshMapBtn'),
-  toast: document.getElementById('toast')
+  toast: document.getElementById('toast'),
+  authToggleBtn: document.getElementById('authToggleBtn'),
+  authOverlay: document.getElementById('authOverlay'),
+  authCloseBtn: document.getElementById('authCloseBtn'),
+  authForm: document.getElementById('authForm'),
+  authFormTitle: document.getElementById('authFormTitle'),
+  authFormSubtitle: document.getElementById('authFormSubtitle'),
+  authPassword: document.getElementById('authPassword'),
+  authSubmitBtn: document.getElementById('authSubmitBtn'),
+  authNote: document.getElementById('authNote'),
+  confirmPasswordWrapper: document.getElementById('confirmPasswordWrapper'),
+  authConfirmPassword: document.getElementById('authConfirmPassword'),
+  authTabs: document.querySelectorAll('.auth-tab')
 };
 
 let map;
@@ -157,6 +169,8 @@ let activeCategory = 'all';
 let searchQuery = '';
 let favorites = [];
 let prefersDark = false;
+let authMode = 'signIn';
+let currentUser = null;
 
 function createSkeletonCards() {
   dom.loadingSkeleton.innerHTML = '';
@@ -187,6 +201,137 @@ function saveFavorites() {
 
 function loadFavorites() {
   favorites = JSON.parse(localStorage.getItem('aroundYouFavorites')) || [];
+}
+
+function getStoredUsers() {
+  return JSON.parse(localStorage.getItem('aroundYouUsers')) || [];
+}
+
+function saveStoredUsers(users) {
+  localStorage.setItem('aroundYouUsers', JSON.stringify(users));
+}
+
+function loadAuthState() {
+  const storedUser = localStorage.getItem('aroundYouCurrentUser');
+  if (storedUser) {
+    currentUser = JSON.parse(storedUser);
+  }
+}
+
+function saveAuthState() {
+  if (currentUser) {
+    localStorage.setItem('aroundYouCurrentUser', JSON.stringify(currentUser));
+  } else {
+    localStorage.removeItem('aroundYouCurrentUser');
+  }
+}
+
+function updateAuthState() {
+  if (currentUser) {
+    dom.authToggleBtn.textContent = `Hi, ${currentUser.email.split('@')[0]}`;
+    dom.authToggleBtn.classList.add('signed-in');
+  } else {
+    dom.authToggleBtn.textContent = 'Sign In';
+    dom.authToggleBtn.classList.remove('signed-in');
+  }
+}
+
+function openAuthModal(mode = 'signIn') {
+  authMode = mode;
+  dom.authOverlay.classList.remove('hidden');
+  dom.authFormTitle.textContent = mode === 'signIn' ? 'Sign In' : 'Create account';
+  dom.authFormSubtitle.textContent = mode === 'signIn' ? 'Access your favorites and personalize your search.' : 'Create a free account to save your favorite places.';
+  dom.authSubmitBtn.textContent = mode === 'signIn' ? 'Sign In' : 'Sign Up';
+  dom.authNote.textContent = mode === 'signIn' ? 'No account yet? Create one in seconds.' : 'Already have an account? Sign in instead.';
+  dom.confirmPasswordWrapper.classList.toggle('hidden', mode === 'signIn');
+  dom.authPassword.value = '';
+  dom.authEmail.value = '';
+  dom.authConfirmPassword.value = '';
+  dom.authTabs.forEach((tab) => {
+    tab.classList.toggle('active', tab.dataset.mode === mode);
+  });
+}
+
+function closeAuthModal() {
+  dom.authOverlay.classList.add('hidden');
+}
+
+function handleAuthSubmit(event) {
+  event.preventDefault();
+  const email = dom.authEmail.value.trim().toLowerCase();
+  const password = dom.authPassword.value;
+  const confirmPassword = dom.authConfirmPassword.value;
+  if (!email || !password || (authMode === 'signUp' && !confirmPassword)) {
+    showToast('Please fill in all fields.');
+    return;
+  }
+  if (authMode === 'signUp' && password !== confirmPassword) {
+    showToast('Passwords do not match.');
+    return;
+  }
+  const users = getStoredUsers();
+  if (authMode === 'signUp') {
+    if (users.some((user) => user.email === email)) {
+      showToast('An account already exists with this email.');
+      return;
+    }
+    const newUser = { email, password };
+    users.push(newUser);
+    saveStoredUsers(users);
+    currentUser = newUser;
+    saveAuthState();
+    closeAuthModal();
+    updateAuthState();
+    showToast('Account created and signed in successfully.');
+    return;
+  }
+  const existingUser = users.find((user) => user.email === email && user.password === password);
+  if (existingUser) {
+    currentUser = existingUser;
+    saveAuthState();
+    closeAuthModal();
+    updateAuthState();
+    showToast('Signed in successfully.');
+  } else {
+    showToast('Invalid email or password.');
+  }
+}
+
+function handleAuthTabSwitch(event) {
+  const mode = event.target.dataset.mode;
+  if (!mode) return;
+  openAuthModal(mode);
+}
+
+function handleAuthToggle() {
+  if (currentUser) {
+    currentUser = null;
+    saveAuthState();
+    updateAuthState();
+    showToast('Signed out successfully.');
+    return;
+  }
+  openAuthModal('signIn');
+}
+
+function handleOverlayClick(event) {
+  if (event.target === dom.authOverlay) {
+    closeAuthModal();
+  }
+}
+
+function updateAuthForms() {
+  dom.authForm.querySelectorAll('input').forEach((input) => {
+    input.value = '';
+  });
+}
+
+function initAuthListeners() {
+  dom.authToggleBtn.addEventListener('click', handleAuthToggle);
+  dom.authCloseBtn.addEventListener('click', closeAuthModal);
+  dom.authOverlay.addEventListener('click', handleOverlayClick);
+  dom.authForm.addEventListener('submit', handleAuthSubmit);
+  dom.authTabs.forEach((tab) => tab.addEventListener('click', handleAuthTabSwitch));
 }
 
 function updateTheme() {
@@ -394,12 +539,15 @@ function initRevealAnimations() {
 
 function init() {
   initTheme();
+  loadAuthState();
+  updateAuthState();
   loadFavorites();
   initCategoryCards();
   initFilterPills();
   renderPlaces();
   initMap();
   initListeners();
+  initAuthListeners();
   initRevealAnimations();
 }
 
