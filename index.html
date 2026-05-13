@@ -4,50 +4,207 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <title>Around You</title>
-  <meta name="description" content="Interactive local places explorer with map, location detection, and nearby suggestions." />
-
-  <link
-  rel="stylesheet"
-  href="https://unpkg.com/leaflet/dist/leaflet.css"
-/>
-  <link rel="stylesheet" href="style.css">
+  <meta name="description" content="Discover nearby restaurants, cafes, gyms, parks, hospitals, and attractions with Around You." />
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <link rel="stylesheet" href="style.css" />
 </head>
 
 <body>
+  <div class="app-shell">
+    <header class="navbar">
+      <a class="brand" href="#home">
+        <span class="brand-mark">AU</span>
+        <span class="brand-title">Around You</span>
+      </a>
+      <button class="menu-btn" aria-label="Open menu">☰</button>
+      <nav class="nav-links">
+        <a href="#home">Home</a>
+        <a href="#categories">Categories</a>
+        <a href="#places">Nearby</a>
+        <a href="#map">Map</a>
+        <a href="#reviews">Reviews</a>
+      </nav>
+      <div class="nav-actions">
+        <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
+      </div>
+    </header>
 
-  <!-- NAVBAR -->
+    <main>
+      <section class="hero" id="home">
+        <div class="hero-overlay"></div>
+        <div class="hero-copy">
+          <p class="eyebrow">Local discovery made effortless</p>
+          <h1>Find the best places around you in seconds</h1>
+          <p>Explore restaurants, cafes, hotels, gyms, parks, shopping, hospitals, and tourist attractions with a premium, responsive interface.</p>
+          <div class="hero-actions">
+            <div class="search-group">
+              <label for="searchInput">Search places</label>
+              <div class="input-with-icon">
+                <span>🔎</span>
+                <input type="search" id="searchInput" placeholder="Search by name or category" autocomplete="off" />
+              </div>
+            </div>
+            <div class="search-group">
+              <label for="locationInput">Your location</label>
+              <div class="input-with-icon">
+                <span>📍</span>
+                <input type="text" id="locationInput" placeholder="Indiranagar, Bangalore" />
+              </div>
+            </div>
+          </div>
+          <div class="hero-cta">
+            <button type="button" id="exploreBtn" class="btn-primary">Explore Nearby</button>
+            <span class="hero-tag">Live demo with map markers, favorites, and dark mode.</span>
+          </div>
+        </div>
+      </section>
 
-  <nav class="navbar">
-    <div class="menu-btn">
-      ☰
-    </div>
+      <section class="overview-cards">
+        <article class="overview-card">
+          <span>🏙️</span>
+          <div>
+            <p>Premium UI</p>
+            <strong>Launch-ready design</strong>
+          </div>
+        </article>
+        <article class="overview-card">
+          <span>⚡</span>
+          <div>
+            <p>Fast interactions</p>
+            <strong>Mobile-first and smooth</strong>
+          </div>
+        </article>
+        <article class="overview-card">
+          <span>💾</span>
+          <div>
+            <p>Favorites saved</p>
+            <strong>LocalStorage persistence</strong>
+          </div>
+        </article>
+      </section>
 
-    <h1 class="logo">Around You</h1>
+      <section class="categories" id="categories">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Popular categories</p>
+            <h2>Choose a category and explore nearby places</h2>
+          </div>
+          <span class="section-meta">Tap any card to filter the nearby list.</span>
+        </div>
+        <div class="category-grid" id="categoryGrid"></div>
+      </section>
 
-    <ul class="nav-links">
-      <li><a href="#home">Home</a></li>
-      <li><a href="#places">Places</a></li>
-      <li><a href="#about">About</a></li>
-    </ul>
-  </nav>
+      <section class="places-section" id="places">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Nearby places</p>
+            <h2>Find your next favorite spot</h2>
+          </div>
+          <div class="filter-row" id="filterRow"></div>
+        </div>
+        <div id="loadingSkeleton" class="places-grid skeleton-grid"></div>
+        <div id="placesContainer" class="places-grid"></div>
+      </section>
 
-  <section class="hero" id="home">
-    <h2>Explore the best places around you</h2>
-    <p>Discover restaurants, cafes, hospitals, parks, and more with an interactive map and live location detection.</p>
-    <button type="button" onclick="document.querySelector('#places').scrollIntoView({ behavior: 'smooth' });">Explore Nearby</button>
-  </section>
+      <section class="map-section" id="map">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Interactive map</p>
+            <h2>Visualize nearby markers on the map</h2>
+          </div>
+          <p class="section-meta">Demo markers show local highlights across the area.</p>
+        </div>
+        <div class="map-card">
+          <div id="map"></div>
+          <aside class="map-sidebar">
+            <h3>Featured area</h3>
+            <p id="mapLocationText">Indiranagar, Bangalore</p>
+            <div class="map-stats">
+              <div>
+                <strong id="markerCount">0</strong>
+                <span>markers on the map</span>
+              </div>
+              <div>
+                <strong id="activeCategory">All</strong>
+                <span>current filter</span>
+              </div>
+            </div>
+            <button type="button" id="refreshMapBtn" class="btn-secondary">Refresh markers</button>
+          </aside>
+        </div>
+      </section>
 
-  <main>
-    <!-- CATEGORY SECTION -->
+      <section class="testimonials" id="reviews">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Reviews</p>
+            <h2>What users love about Around You</h2>
+          </div>
+        </div>
+        <div class="testimonial-grid">
+          <article class="testimonial-card">
+            <p>“I found the perfect cafe in minutes and the map made it easy to navigate. The design feels premium and intuitive.”</p>
+            <footer>
+              <strong>Aditi Sharma</strong>
+              <span>Food blogger</span>
+            </footer>
+          </article>
+          <article class="testimonial-card">
+            <p>“The dark mode and quick filters make browsing nearby gyms and restaurants effortless. It feels like a polished product.”</p>
+            <footer>
+              <strong>Rohan Patel</strong>
+              <span>Startup founder</span>
+            </footer>
+          </article>
+          <article class="testimonial-card">
+            <p>“I love saving favorites locally. The cards, animations and responsive layout all come together beautifully.”</p>
+            <footer>
+              <strong>Meera Nair</strong>
+              <span>Travel enthusiast</span>
+            </footer>
+          </article>
+        </div>
+      </section>
+    </main>
 
-    <section class="categories">
-      <h2>Explore Categories</h2>
+    <footer class="site-footer">
+      <div class="footer-grid">
+        <div>
+          <h3>Around You</h3>
+          <p>Discover local places with a modern experience that feels like a real travel product.</p>
+        </div>
+        <div>
+          <h4>Quick links</h4>
+          <a href="#home">Home</a>
+          <a href="#categories">Categories</a>
+          <a href="#places">Nearby</a>
+          <a href="#map">Map</a>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <p>hello@aroundyou.app</p>
+          <p>+91 98765 43210</p>
+        </div>
+      </div>
+      <div class="footer-meta">
+        <p>Built with HTML, CSS, JavaScript, and Leaflet.</p>
+        <div class="social-links">
+          <a href="#">Instagram</a>
+          <a href="#">Twitter</a>
+          <a href="#">LinkedIn</a>
+        </div>
+      </div>
+    </footer>
+  </div>
 
-    <div class="category-grid">
-      <div class="card" data-category="restaurants">
-        <h3>🍔 Restaurants</h3>
+  <div id="toast" class="toast"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script src="script.js"></script>
+</body>
+
+</html>
         <p>Top dining spots in Indiranagar.</p>
         <ul>
           <li>💰 ₹300-800 | #1 Grain</li>

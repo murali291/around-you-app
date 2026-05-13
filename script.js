@@ -1,348 +1,406 @@
-const menuBtn =
-  document.querySelector(".menu-btn");
-
-const navLinks =
-  document.querySelector(".nav-links");
-
-const locationText =
-  document.getElementById("locationText");
-
-const placesContainer =
-  document.getElementById("placesContainer");
-
-const favoritesContainer =
-  document.getElementById("favoritesContainer");
-
-const clearFavoritesBtn =
-  document.getElementById("clearFavoritesBtn");
-
-const categoryCards =
-  document.querySelectorAll(".categories .card");
-
 const DEFAULT_LAT = 12.9719;
 const DEFAULT_LON = 77.6408;
-const CATEGORY_SEARCH_TERMS = {
-  restaurants: "restaurants in Indiranagar Bangalore",
-  cafes: "cafes in Indiranagar Bangalore",
-  hospitals: "hospitals in Indiranagar Bangalore",
-  gyms: "gyms in Indiranagar Bangalore",
-  parks: "parks in Indiranagar Bangalore",
-  pubs: "pubs in Indiranagar Bangalore"
+const DEFAULT_LOCATION = 'Indiranagar, Bangalore';
+
+const categories = [
+  { id: 'restaurants', title: 'Restaurants', description: 'Top dining spots and local favorites.', icon: '🍽️' },
+  { id: 'cafes', title: 'Cafes', description: 'Cozy coffee shops and brunch cafes.', icon: '☕' },
+  { id: 'hotels', title: 'Hotels', description: 'Comfortable stays and boutique hotels.', icon: '🏨' },
+  { id: 'gyms', title: 'Gyms', description: 'Fitness centers and wellness studios.', icon: '🏋️' },
+  { id: 'hospitals', title: 'Hospitals', description: 'Trusted healthcare and emergency services.', icon: '🏥' },
+  { id: 'parks', title: 'Parks', description: 'Green spaces and outdoor escapes.', icon: '🌳' },
+  { id: 'shopping', title: 'Shopping', description: 'Malls and local shopping districts.', icon: '🛍️' },
+  { id: 'attractions', title: 'Attractions', description: 'Landmarks and tourist highlights.', icon: '🎡' }
+];
+
+const places = [
+  {
+    id: 'grain-bistro',
+    name: 'Grain Bistro',
+    category: 'restaurants',
+    description: 'Modern dining with biryani, kebabs and craft cocktails.',
+    rating: 4.8,
+    distance: '1.2 km',
+    status: 'Open now',
+    price: '₹300 - ₹800',
+    image: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?auto=format&fit=crop&w=900&q=80',
+    lat: 12.9725,
+    lon: 77.6400
+  },
+  {
+    id: 'fava-cafe',
+    name: 'Fava',
+    category: 'restaurants',
+    description: 'Charming Mediterranean kitchen with salads and brunch.',
+    rating: 4.7,
+    distance: '1.5 km',
+    status: 'Open now',
+    price: '₹250 - ₹650',
+    image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80',
+    lat: 12.9689,
+    lon: 77.6422
+  },
+  {
+    id: 'blue-tokai',
+    name: 'Blue Tokai',
+    category: 'cafes',
+    description: 'Specialty coffee, cold brew and light bites.',
+    rating: 4.9,
+    distance: '900 m',
+    status: 'Open now',
+    price: '₹150 - ₹300',
+    image: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80',
+    lat: 12.9738,
+    lon: 77.6465
+  },
+  {
+    id: 'longstay-inn',
+    name: 'Longstay Inn',
+    category: 'hotels',
+    description: 'Modern rooms, rooftop lounge and city views.',
+    rating: 4.6,
+    distance: '2.0 km',
+    status: 'Check in available',
+    price: '₹3500 - ₹6800',
+    image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80',
+    lat: 12.9755,
+    lon: 77.6382
+  },
+  {
+    id: 'cult-fit',
+    name: 'Cult.fit',
+    category: 'gyms',
+    description: 'High-energy workouts, group classes and trainers.',
+    rating: 4.5,
+    distance: '1.0 km',
+    status: 'Open now',
+    price: '₹3000 / mo',
+    image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80',
+    lat: 12.9720,
+    lon: 77.6374
+  },
+  {
+    id: 'apollo-cradle',
+    name: 'Apollo Cradle',
+    category: 'hospitals',
+    description: '24/7 emergency care with maternity and specialties.',
+    rating: 4.4,
+    distance: '2.4 km',
+    status: 'Open now',
+    price: 'Premium',
+    image: 'https://images.unsplash.com/photo-1580281657522-9b7b3c0c8f6d?auto=format&fit=crop&w=900&q=80',
+    lat: 12.9768,
+    lon: 77.6419
+  },
+  {
+    id: 'milkyway-park',
+    name: 'Milkyway Park',
+    category: 'parks',
+    description: 'Wide lawns, jogging trails and outdoor seating.',
+    rating: 4.7,
+    distance: '1.3 km',
+    status: 'Open until 7:00 PM',
+    price: 'Free',
+    image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
+    lat: 12.9710,
+    lon: 77.6457
+  },
+  {
+    id: 'mall-square',
+    name: 'Mall Square',
+    category: 'shopping',
+    description: 'Fashion, electronics, food court and cinema.',
+    rating: 4.5,
+    distance: '2.8 km',
+    status: 'Open now',
+    price: 'Varies',
+    image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80',
+    lat: 12.9802,
+    lon: 77.6430
+  },
+  {
+    id: 'city-eye',
+    name: 'City Eye',
+    category: 'attractions',
+    description: 'Riverside attraction with skyline views and live events.',
+    rating: 4.8,
+    distance: '3.1 km',
+    status: 'Open until 11:00 PM',
+    price: '₹200 - ₹500',
+    image: 'https://images.unsplash.com/photo-1519817650390-64a93db511aa?auto=format&fit=crop&w=900&q=80',
+    lat: 12.9786,
+    lon: 77.6364
+  }
+];
+
+const dom = {
+  menuBtn: document.querySelector('.menu-btn'),
+  navLinks: document.querySelector('.nav-links'),
+  themeToggle: document.getElementById('themeToggle'),
+  exploreBtn: document.getElementById('exploreBtn'),
+  searchInput: document.getElementById('searchInput'),
+  locationInput: document.getElementById('locationInput'),
+  categoryGrid: document.getElementById('categoryGrid'),
+  placesContainer: document.getElementById('placesContainer'),
+  loadingSkeleton: document.getElementById('loadingSkeleton'),
+  filterRow: document.getElementById('filterRow'),
+  mapLocationText: document.getElementById('mapLocationText'),
+  activeCategoryLabel: document.getElementById('activeCategory'),
+  markerCountLabel: document.getElementById('markerCount'),
+  refreshMapBtn: document.getElementById('refreshMapBtn'),
+  toast: document.getElementById('toast')
 };
 
-const PLACE_DETAILS = {
-  "#1 Grain": { price: "₹300-800", items: "Biryani, Kebabs, Breads", timings: "11 AM - 11 PM", category: "restaurants" },
-  "Fava": { price: "₹200-600", items: "Wraps, Hummus, Mediterranean", timings: "12 PM - 10 PM", category: "restaurants" },
-  "Little Italy": { price: "₹400-1000", items: "Pasta, Pizza, Risotto", timings: "11 AM - 11 PM", category: "restaurants" },
-  "Blue Tokai": { price: "₹150-300", items: "Specialty Coffee, Cold Brew", timings: "7 AM - 10 PM", category: "cafes" },
-  "DYU Art Cafe": { price: "₹100-250", items: "Coffee, Snacks, Pastries", timings: "7 AM - 9 PM", category: "cafes" },
-  "Cafe Max": { price: "₹80-200", items: "Coffee, Tea, Breakfast", timings: "7 AM - 10 PM", category: "cafes" },
-  "Apollo Cradle": { price: "Premium", items: "OBG, Pediatrics, ICU", timings: "24/7 Emergency", category: "hospitals" },
-  "Narayana Multispeciality": { price: "Standard", items: "General, Cardiology, Surgery", timings: "24/7 Emergency", category: "hospitals" },
-  "Cloudnine Hospital": { price: "Premium", items: "Maternity, Pediatrics, General", timings: "24/7 Emergency", category: "hospitals" },
-  "Cult.fit": { price: "₹3000/month", items: "CrossFit, Yoga, Strength", timings: "5 AM - 10 PM", category: "gyms" },
-  "Snap Fitness": { price: "₹2500/month", items: "Cardio, Weights, Classes", timings: "5 AM - 10 PM", category: "gyms" },
-  "Gympik": { price: "₹2000/month", items: "Personal Training, Group Classes", timings: "6 AM - 10 PM", category: "gyms" },
-  "Toit": { price: "₹500-1200", items: "Craft Beer, Burgers, Pizzas", timings: "11 AM - Midnight", category: "pubs" },
-  "Arbor Brewing": { price: "₹400-1000", items: "Craft Beer, Appetizers", timings: "12 PM - 11 PM", category: "pubs" },
-  "Smoke House Deli": { price: "₹600-1500", items: "Smoked Meat, Cocktails", timings: "12 PM - Midnight", category: "pubs" }
-};
-
-let currentSearch = CATEGORY_SEARCH_TERMS.restaurants;
 let map;
+let markerLayer;
+let activeCategory = 'all';
+let searchQuery = '';
+let favorites = [];
+let prefersDark = false;
 
-if (clearFavoritesBtn) {
-  clearFavoritesBtn.addEventListener("click", clearFavorites);
-}
-
-categoryCards.forEach((card) => {
-  const category = card.dataset.category;
-  if (!category) return;
-
-  card.addEventListener("click", () => {
-    selectCategory(category);
-  });
-});
-
-// GET USER LOCATION
-
-function getLocation() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        locationText.innerText =
-          "Showing Indiranagar, Bangalore places.";
-
-        initMap(DEFAULT_LAT, DEFAULT_LON, "Indiranagar, Bangalore");
-
-        L.marker([position.coords.latitude, position.coords.longitude])
-          .addTo(map)
-          .bindPopup("You are here");
-
-        fetchPlaces();
-      },
-      () => {
-        locationText.innerText =
-          "Showing Indiranagar, Bangalore places.";
-
-        initMap(DEFAULT_LAT, DEFAULT_LON, "Indiranagar, Bangalore");
-        fetchPlaces();
-      }
-    );
-  } else {
-    locationText.innerText =
-      "Showing Indiranagar, Bangalore places.";
-
-    initMap(DEFAULT_LAT, DEFAULT_LON, "Indiranagar, Bangalore");
-    fetchPlaces();
+function createSkeletonCards() {
+  dom.loadingSkeleton.innerHTML = '';
+  dom.loadingSkeleton.classList.remove('hidden');
+  for (let i = 0; i < 6; i += 1) {
+    const card = document.createElement('div');
+    card.className = 'skeleton-card';
+    card.innerHTML = '<div class="skeleton-row"></div><div class="skeleton-row"></div><div class="skeleton-row short"></div>';
+    dom.loadingSkeleton.appendChild(card);
   }
 }
 
-// INITIALIZE MAP
-
-function initMap(lat, lon, title = "Location") {
-
-  map = L.map("map").setView(
-    [lat, lon],
-    13
-  );
-
-  L.tileLayer(
-    "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-    {
-      attribution:
-        "&copy; OpenStreetMap contributors",
-    }
-  ).addTo(map);
-
-  L.marker([lat, lon])
-    .addTo(map)
-    .bindPopup(title)
-    .openPopup();
-
+function hideSkeleton() {
+  dom.loadingSkeleton.innerHTML = '';
+  dom.loadingSkeleton.classList.add('hidden');
 }
 
-// FETCH PLACES
-
-async function fetchPlaces() {
-
-  try {
-    placesContainer.innerHTML = "<div style='text-align:center;padding:40px'><div class='loading-spinner'></div><p>Loading nearby places...</p></div>";
-    
-    const query = encodeURIComponent(currentSearch);
-    const response = await fetch(
-      `https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=6`
-    );
-
-    const data =
-      await response.json();
-
-    if (!data || data.length === 0) {
-      placesContainer.innerHTML = "<div class='places-empty'><h3>No places found for this category.</h3><p>Try a different category or allow location access.</p></div>";
-      return;
-    }
-
-    displayPlaces(data);
-
-  } catch (error) {
-
-    placesContainer.innerHTML =
-      "<div class='places-empty'><h3>Error loading places</h3><p>Please try again later.</p></div>";
-
-  }
-
-  loadFavorites();
+function showToast(message) {
+  dom.toast.textContent = message;
+  dom.toast.classList.add('show');
+  window.clearTimeout(dom.toast.timeoutId);
+  dom.toast.timeoutId = window.setTimeout(() => dom.toast.classList.remove('show'), 2800);
 }
 
-function selectCategory(category) {
-  currentSearch = CATEGORY_SEARCH_TERMS[category] || currentSearch;
-  const categoryName = category.charAt(0).toUpperCase() + category.slice(1);
-  locationText.innerText = `Browsing ${categoryName} in Indiranagar, Bangalore...`;
-  fetchPlaces();
-  setTimeout(() => {
-    document.querySelector('#places').scrollIntoView({ behavior: 'smooth' });
-  }, 100);
-}
-
-// DISPLAY PLACES
-
-function displayPlaces(places) {
-  placesContainer.innerHTML = "";
-
-  if (!places || places.length === 0) {
-    placesContainer.innerHTML = "<h3>No places found.</h3>";
-    return;
-  }
-
-  places.forEach((place) => {
-    const card = document.createElement("div");
-    card.classList.add("place-card");
-
-    const placeName = place.display_name.split(",")[0];
-    const placeDetails = PLACE_DETAILS[placeName] || {};
-
-    const title = document.createElement("h3");
-    title.textContent = placeName;
-
-    const description = document.createElement("p");
-    description.textContent = place.display_name;
-
-    const detailsWrapper = document.createElement("div");
-    detailsWrapper.style.marginTop = "12px";
-    detailsWrapper.style.marginBottom = "12px";
-    detailsWrapper.style.paddingBottom = "12px";
-    detailsWrapper.style.borderBottom = "1px solid #334155";
-
-    if (placeDetails.price) {
-      const priceEl = document.createElement("p");
-      priceEl.style.fontSize = "0.9rem";
-      priceEl.style.color = "#0ea5e9";
-      priceEl.style.margin = "5px 0";
-      priceEl.textContent = `💰 ${placeDetails.price}`;
-      detailsWrapper.appendChild(priceEl);
-    }
-
-    if (placeDetails.items) {
-      const itemsEl = document.createElement("p");
-      itemsEl.style.fontSize = "0.9rem";
-      itemsEl.style.color = "#cbd5e1";
-      itemsEl.style.margin = "5px 0";
-      itemsEl.textContent = `🍽️ ${placeDetails.items}`;
-      detailsWrapper.appendChild(itemsEl);
-    }
-
-    if (placeDetails.timings) {
-      const timingsEl = document.createElement("p");
-      timingsEl.style.fontSize = "0.9rem";
-      timingsEl.style.color = "#cbd5e1";
-      timingsEl.style.margin = "5px 0";
-      timingsEl.textContent = `⏰ ${placeDetails.timings}`;
-      detailsWrapper.appendChild(timingsEl);
-    }
-
-    const buttonWrapper = document.createElement("div");
-    buttonWrapper.classList.add("card-buttons");
-
-    const mapButton = document.createElement("button");
-    mapButton.type = "button";
-    mapButton.textContent = "Open in Maps";
-    mapButton.addEventListener("click", () => {
-      openMaps(place.lat, place.lon);
-    });
-
-    const saveButton = document.createElement("button");
-    saveButton.type = "button";
-    saveButton.textContent = "❤️ Save";
-    saveButton.addEventListener("click", () => {
-      saveFavorite(place.display_name);
-    });
-
-    buttonWrapper.appendChild(mapButton);
-    buttonWrapper.appendChild(saveButton);
-
-    card.appendChild(title);
-    card.appendChild(description);
-    card.appendChild(detailsWrapper);
-    card.appendChild(buttonWrapper);
-
-    placesContainer.appendChild(card);
-
-    if (map) {
-      L.marker([place.lat, place.lon])
-        .addTo(map)
-        .bindPopup(place.display_name);
-    }
-  });
-}
-
-// OPEN GOOGLE MAPS
-
-function openMaps(lat, lon) {
-
-  window.open(
-    `https://www.google.com/maps?q=${lat},${lon}`
-  );
-
-}
-
-function displayFavorites(favorites) {
-  if (!favorites || favorites.length === 0) {
-    favoritesContainer.innerHTML = "<p>You don’t have any saved favorites yet.</p>";
-    return;
-  }
-
-  favoritesContainer.innerHTML = "";
-
-  favorites.forEach((place) => {
-    const card = document.createElement("div");
-    card.classList.add("favorite-card");
-
-    const description = document.createElement("p");
-    description.textContent = place;
-
-    const openButton = document.createElement("button");
-    openButton.type = "button";
-    openButton.textContent = "Open in Maps";
-    openButton.addEventListener("click", () => {
-      const query = encodeURIComponent(place);
-      window.open(`https://www.google.com/maps/search/?api=1&query=${query}`);
-    });
-
-    card.appendChild(description);
-    card.appendChild(openButton);
-    favoritesContainer.appendChild(card);
-  });
+function saveFavorites() {
+  localStorage.setItem('aroundYouFavorites', JSON.stringify(favorites));
 }
 
 function loadFavorites() {
-  const favorites =
-    JSON.parse(localStorage.getItem("favorites")) || [];
-  displayFavorites(favorites);
+  favorites = JSON.parse(localStorage.getItem('aroundYouFavorites')) || [];
 }
 
-function clearFavorites() {
-  localStorage.removeItem("favorites");
-  loadFavorites();
+function updateTheme() {
+  document.documentElement.classList.toggle('dark', prefersDark);
+  dom.themeToggle.textContent = prefersDark ? '☀️' : '🌙';
+  localStorage.setItem('aroundYouTheme', prefersDark ? 'dark' : 'light');
 }
 
-// START APP
-
-getLocation();
-loadFavorites();
-// SAVE FAVORITES
-
-function saveFavorite(place) {
-
-  let favorites =
-    JSON.parse(
-      localStorage.getItem("favorites")
-    ) || [];
-
-  if (favorites.includes(place)) {
-    alert("This place is already in your favorites!");
-    return;
+function initTheme() {
+  const storedTheme = localStorage.getItem('aroundYouTheme');
+  if (storedTheme) {
+    prefersDark = storedTheme === 'dark';
+  } else {
+    prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
   }
-
-  favorites.push(place);
-
-  localStorage.setItem(
-    "favorites",
-    JSON.stringify(favorites)
-  );
-
-  alert("Place saved to favorites!");
-  loadFavorites();
-
+  updateTheme();
 }
-// MOBILE MENU
 
-menuBtn.addEventListener(
-  "click",
-  () => {
+function toggleMenu() {
+  dom.navLinks.classList.toggle('active');
+}
 
-    navLinks.classList.toggle(
-      "active"
-    );
+function initCategoryCards() {
+  dom.categoryGrid.innerHTML = categories.map((category) => `
+    <article class="category-card" data-category="${category.id}">
+      <div class="category-card-icon">${category.icon}</div>
+      <div>
+        <h3>${category.title}</h3>
+        <p>${category.description}</p>
+      </div>
+    </article>
+  `).join('');
+  dom.categoryGrid.querySelectorAll('.category-card').forEach((card) => {
+    card.addEventListener('click', () => {
+      const selected = card.dataset.category;
+      handleCategorySelect(selected);
+    });
+  });
+}
 
-  }
-);
+function initFilterPills() {
+  const pills = ['all', ...categories.map((item) => item.id)];
+  dom.filterRow.innerHTML = pills.map((pill) => `
+    <div class="filter-pill ${pill === 'all' ? 'selected' : ''}" data-filter="${pill}">${pill === 'all' ? 'All' : pill.charAt(0).toUpperCase() + pill.slice(1)}</div>
+  `).join('');
+  dom.filterRow.querySelectorAll('.filter-pill').forEach((pill) => {
+    pill.addEventListener('click', () => {
+      dom.filterRow.querySelector('.filter-pill.selected')?.classList.remove('selected');
+      pill.classList.add('selected');
+      handleCategorySelect(pill.dataset.filter);
+    });
+  });
+}
+
+function handleCategorySelect(category) {
+  activeCategory = category;
+  dom.activeCategoryLabel.textContent = category === 'all' ? 'All' : category.charAt(0).toUpperCase() + category.slice(1);
+  renderPlaces();
+  updateMapMarkers();
+  showToast(`${dom.activeCategoryLabel.textContent} filter applied`);
+}
+
+function filterPlaces() {
+  return places.filter((place) => {
+    const matchesCategory = activeCategory === 'all' || place.category === activeCategory;
+    const matchesSearch = place.name.toLowerCase().includes(searchQuery) || place.category.includes(searchQuery);
+    return matchesCategory && matchesSearch;
+  });
+}
+
+function renderPlaces() {
+  createSkeletonCards();
+  window.setTimeout(() => {
+    const filteredPlaces = filterPlaces();
+    dom.placesContainer.innerHTML = filteredPlaces.map((place) => `
+      <article class="place-card">
+        <img class="place-thumbnail" src="${place.image}" alt="${place.name}" loading="lazy" />
+        <div class="place-content">
+          <div class="place-meta">
+            <span>⭐ ${place.rating}</span>
+            <span>• ${place.distance}</span>
+            <span>• ${place.status}</span>
+          </div>
+          <div>
+            <h3 class="place-title">${place.name}</h3>
+            <p class="place-description">${place.description}</p>
+          </div>
+          <div class="place-tags">
+            <span class="place-pill">${place.price}</span>
+            <span class="place-pill">${place.category}</span>
+          </div>
+          <div class="place-actions">
+            <button class="btn-secondary" data-action="directions" data-id="${place.id}">Open in Maps</button>
+            <button class="btn-primary" data-action="favorite" data-id="${place.id}">${favorites.includes(place.id) ? '★ Saved' : '☆ Save'}</button>
+          </div>
+        </div>
+      </article>
+    `).join('');
+
+    hideSkeleton();
+    attachPlaceHandlers();
+
+    if (filteredPlaces.length === 0) {
+      dom.placesContainer.innerHTML = '<p class="empty-state">No places matched your search. Try a different category or search term.</p>';
+    }
+  }, 700);
+}
+
+function attachPlaceHandlers() {
+  dom.placesContainer.querySelectorAll('button[data-action="directions"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const place = places.find((item) => item.id === button.dataset.id);
+      if (place) {
+        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`);
+      }
+    });
+  });
+  dom.placesContainer.querySelectorAll('button[data-action="favorite"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const place = places.find((item) => item.id === button.dataset.id);
+      if (!place) return;
+      const index = favorites.indexOf(place.id);
+      if (index === -1) {
+        favorites.push(place.id);
+        button.textContent = '★ Saved';
+        showToast(`${place.name} added to favorites`);
+      } else {
+        favorites.splice(index, 1);
+        button.textContent = '☆ Save';
+        showToast(`${place.name} removed from favorites`);
+      }
+      saveFavorites();
+    });
+  });
+}
+
+function initMap(lat = DEFAULT_LAT, lon = DEFAULT_LON) {
+  map = L.map('map', { zoomControl: false }).setView([lat, lon], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  markerLayer = L.layerGroup().addTo(map);
+  L.marker([lat, lon]).addTo(markerLayer).bindPopup('You are here').openPopup();
+  updateMapMarkers();
+}
+
+function updateMapMarkers() {
+  if (!map || !markerLayer) return;
+  markerLayer.clearLayers();
+  L.marker([DEFAULT_LAT, DEFAULT_LON]).addTo(markerLayer).bindPopup(DEFAULT_LOCATION);
+  const filteredPlaces = filterPlaces();
+  filteredPlaces.forEach((place) => {
+    L.marker([place.lat, place.lon])
+      .addTo(markerLayer)
+      .bindPopup(`<strong>${place.name}</strong><br>${place.distance}`);
+  });
+  dom.markerCountLabel.textContent = filteredPlaces.length + 1;
+}
+
+function refreshMarkers() {
+  updateMapMarkers();
+  showToast('Map markers refreshed');
+}
+
+function initListeners() {
+  dom.menuBtn.addEventListener('click', toggleMenu);
+  dom.themeToggle.addEventListener('click', () => {
+    prefersDark = !prefersDark;
+    updateTheme();
+  });
+  dom.exploreBtn.addEventListener('click', () => {
+    document.getElementById('places').scrollIntoView({ behavior: 'smooth' });
+  });
+  dom.searchInput.addEventListener('input', (event) => {
+    searchQuery = event.target.value.trim().toLowerCase();
+    renderPlaces();
+    updateMapMarkers();
+  });
+  dom.locationInput.addEventListener('change', (event) => {
+    dom.mapLocationText.textContent = event.target.value || DEFAULT_LOCATION;
+    showToast(`Searching around ${dom.mapLocationText.textContent}`);
+  });
+  dom.refreshMapBtn.addEventListener('click', refreshMarkers);
+  window.addEventListener('click', (event) => {
+    if (!event.target.closest('.nav-links') && !event.target.closest('.menu-btn')) {
+      dom.navLinks.classList.remove('active');
+    }
+  });
+}
+
+function initRevealAnimations() {
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry) => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('reveal-visible');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.18 });
+  document.querySelectorAll('.category-card, .place-card, .testimonial-card, .map-card, .overview-card').forEach((element) => {
+    element.classList.add('reveal');
+    observer.observe(element);
+  });
+}
+
+function init() {
+  initTheme();
+  loadFavorites();
+  initCategoryCards();
+  initFilterPills();
+  renderPlaces();
+  initMap();
+  initListeners();
+  initRevealAnimations();
+}
+
+init();
