@@ -101,6 +101,12 @@ input {
 .nav-actions {
   display: flex;
   justify-content: flex-end;
+  gap: 0.8rem;
+}
+
+#authToggleBtn.signed-in {
+  background: rgba(56, 221, 255, 0.14);
+  border-color: rgba(56, 221, 255, 0.3);
 }
 
 .menu-btn {
@@ -230,9 +236,10 @@ input {
 .btn-secondary {
   padding: 1rem 1.8rem;
   border-radius: 16px;
-  border: none;
+  border: 1px solid transparent;
   cursor: pointer;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background-color 0.25s ease, border-color 0.25s ease;
+  font-weight: 600;
 }
 
 .btn-primary {
@@ -248,10 +255,19 @@ input {
 }
 
 .btn-primary:hover,
-.btn-secondary:hover,
+.btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(56, 221, 255, 0.2);
+}
+
 .theme-toggle:hover,
 .menu-btn:hover {
-  transform: translateY(-1px);
+  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-secondary:hover {
+  border-color: rgba(56, 221, 255, 0.3);
 }
 
 .hero-tag {
@@ -783,6 +799,28 @@ input {
   opacity: 1;
   transform: translateY(0);
 }
+
+.place-actions button[data-action="favorite"].favorited {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.16), rgba(249, 115, 22, 0.08));
+}
+
+.place-actions button[data-action="favorite"].favorited:hover {
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.24), rgba(249, 115, 22, 0.12));
+  box-shadow: 0 4px 16px rgba(249, 115, 22, 0.2);
+}
+
+@media (max-width: 520px) {
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.9rem 1.4rem;
+    font-size: 0.95rem;
+  }
+
+  .place-actions {
+    flex-direction: column;
+  }
+}
+
 
 .auth-overlay {
   position: fixed;

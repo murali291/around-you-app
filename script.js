@@ -1,6 +1,8 @@
 const DEFAULT_LAT = 12.9719;
 const DEFAULT_LON = 77.6408;
 const DEFAULT_LOCATION = 'Indiranagar, Bangalore';
+const GEOLOCATION_TIMEOUT = 8000;
+const SEARCH_DEBOUNCE_DELAY = 300;
 
 const categories = [
   { id: 'restaurants', title: 'Restaurants', description: 'Top dining spots and local favorites.', icon: '🍽️' },
@@ -171,6 +173,9 @@ let favorites = [];
 let prefersDark = false;
 let authMode = 'signIn';
 let currentUser = null;
+let userLocation = { lat: DEFAULT_LAT, lon: DEFAULT_LON, name: DEFAULT_LOCATION };
+let searchDebounceTimer = null;
+let mapInitialized = false;
 
 function createSkeletonCards() {
   dom.loadingSkeleton.innerHTML = '';
@@ -445,7 +450,9 @@ function attachPlaceHandlers() {
     button.addEventListener('click', () => {
       const place = places.find((item) => item.id === button.dataset.id);
       if (place) {
-        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name)}`);
+        const query = `${place.name}, ${userLocation.name}`;
+        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`);
+        showToast(`📍 Opening ${place.name} in Google Maps...`);
       }
     });
   });
@@ -457,10 +464,12 @@ function attachPlaceHandlers() {
       if (index === -1) {
         favorites.push(place.id);
         button.textContent = '★ Saved';
-        showToast(`${place.name} added to favorites`);
+        button.classList.add('favorited');
+        showToast(`❤️ ${place.name} added to favorites`);
       } else {
         favorites.splice(index, 1);
         button.textContent = '☆ Save';
+        button.classList.remove('favorited');
         showToast(`${place.name} removed from favorites`);
       }
       saveFavorites();
@@ -469,12 +478,14 @@ function attachPlaceHandlers() {
 }
 
 function initMap(lat = DEFAULT_LAT, lon = DEFAULT_LON) {
-  map = L.map('map', { zoomControl: false }).setView([lat, lon], 13);
+  if (mapInitialized) return;
+  map = L.map('map', { zoomControl: true }).setView([lat, lon], 13);
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '&copy; OpenStreetMap contributors'
   }).addTo(map);
   markerLayer = L.layerGroup().addTo(map);
-  L.marker([lat, lon]).addTo(markerLayer).bindPopup('You are here').openPopup();
+  L.marker([lat, lon]).addTo(markerLayer).bindPopup('📍 You are here', { offset: [0, -10] });
+  mapInitialized = true;
   updateMapMarkers();
 }
 
@@ -496,6 +507,40 @@ function refreshMarkers() {
   showToast('Map markers refreshed');
 }
 
+function debounceSearch(query) {
+  searchQuery = query.trim().toLowerCase();
+  window.clearTimeout(searchDebounceTimer);
+  searchDebounceTimer = window.setTimeout(() => {
+    renderPlaces();
+    updateMapMarkers();
+  }, SEARCH_DEBOUNCE_DELAY);
+}
+
+function requestUserLocation() {
+  if (!navigator.geolocation) {
+    showToast('Geolocation not available in your browser.');
+    return;
+  }
+  showToast('📍 Detecting your location...');
+  navigator.geolocation.getCurrentPosition(
+    (position) => {
+      userLocation.lat = position.coords.latitude;
+      userLocation.lon = position.coords.longitude;
+      dom.locationInput.value = `${userLocation.lat.toFixed(4)}, ${userLocation.lon.toFixed(4)}`;
+      showToast(`✓ Location updated!`);
+      if (mapInitialized) {
+        map.setView([userLocation.lat, userLocation.lon], 13);
+        updateMapMarkers();
+      }
+    },
+    (error) => {
+      console.log('Geolocation error:', error);
+      showToast('📍 Unable to access location. Using default area.');
+    },
+    { timeout: GEOLOCATION_TIMEOUT, enableHighAccuracy: false }
+  );
+}
+
 function initListeners() {
   dom.menuBtn.addEventListener('click', toggleMenu);
   dom.themeToggle.addEventListener('click', () => {
@@ -503,16 +548,19 @@ function initListeners() {
     updateTheme();
   });
   dom.exploreBtn.addEventListener('click', () => {
-    document.getElementById('places').scrollIntoView({ behavior: 'smooth' });
+    requestUserLocation();
+    window.setTimeout(() => {
+      document.getElementById('places').scrollIntoView({ behavior: 'smooth' });
+    }, 200);
   });
   dom.searchInput.addEventListener('input', (event) => {
-    searchQuery = event.target.value.trim().toLowerCase();
-    renderPlaces();
-    updateMapMarkers();
+    debounceSearch(event.target.value);
   });
+  dom.locationInput.addEventListener('focus', requestUserLocation);
   dom.locationInput.addEventListener('change', (event) => {
-    dom.mapLocationText.textContent = event.target.value || DEFAULT_LOCATION;
-    showToast(`Searching around ${dom.mapLocationText.textContent}`);
+    userLocation.name = event.target.value || DEFAULT_LOCATION;
+    dom.mapLocationText.textContent = userLocation.name;
+    showToast(`📍 Searching around ${userLocation.name}`);
   });
   dom.refreshMapBtn.addEventListener('click', refreshMarkers);
   window.addEventListener('click', (event) => {
@@ -545,10 +593,17 @@ function init() {
   initCategoryCards();
   initFilterPills();
   renderPlaces();
-  initMap();
+  window.setTimeout(() => {
+    initMap(userLocation.lat, userLocation.lon);
+  }, 300);
   initListeners();
   initAuthListeners();
   initRevealAnimations();
+  showToast('🎉 Welcome to Around You! Explore nearby places.');
 }
 
-init();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
