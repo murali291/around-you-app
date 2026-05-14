@@ -4,9 +4,14 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Around You</title>
-  <meta name="description" content="Discover nearby restaurants, cafes, gyms, parks, hospitals, and attractions with Around You." />
-  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <title>Around You — Discover Nearby Places</title>
+  <meta name="description" content="Around You is a polished local discovery app for Bangalore. Find restaurants, cafes, hospitals, gyms, malls, tourist spots, and transport in seconds." />
+  <meta name="theme-color" content="#08101d" />
+  <meta property="og:title" content="Around You — Discover Nearby Places" />
+  <meta property="og:description" content="A startup-ready local discovery platform for restaurants, cafes, gyms, hospitals and tourist spots." />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="assets/images/favicon.svg" />
+  <link rel="icon" href="assets/images/favicon.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="style.css" />
 </head>
 
@@ -21,67 +26,81 @@
       <nav class="nav-links">
         <a href="#home">Home</a>
         <a href="#categories">Categories</a>
+        <a href="#trending">Trending</a>
         <a href="#places">Nearby</a>
         <a href="#map">Map</a>
         <a href="#reviews">Reviews</a>
       </nav>
       <div class="nav-actions">
         <button id="themeToggle" class="theme-toggle" aria-label="Toggle dark mode">🌙</button>
-        <button id="authToggleBtn" class="btn-secondary">Sign In</button>
       </div>
     </header>
 
     <main>
       <section class="hero" id="home">
-        <div class="hero-overlay"></div>
+        <div class="hero-blur"></div>
         <div class="hero-copy">
-          <p class="eyebrow">Local discovery made effortless</p>
-          <h1>Find the best places around you in seconds</h1>
-          <p>Explore restaurants, cafes, hotels, gyms, parks, shopping, hospitals, and tourist attractions with a premium, responsive interface.</p>
+          <p class="eyebrow">Discover everything around you in seconds</p>
+          <h1 id="heroHeadline">Local discovery built for <span id="heroTyping">Bangalore explorers</span>.</h1>
+          <p class="hero-copytext">Search restaurants, cafes, hospitals, gyms, malls, tourist places and transport hubs — all from one polished local product experience.</p>
+
           <div class="hero-actions">
-            <div class="search-group">
-              <label for="searchInput">Search places</label>
-              <div class="input-with-icon">
-                <span>🔎</span>
-                <input type="search" id="searchInput" placeholder="Search by name or category" autocomplete="off" />
+            <div class="search-panel-top">
+              <div class="search-group">
+                <label for="searchInput">Search places</label>
+                <div class="input-with-icon">
+                  <span>🔎</span>
+                  <input type="search" id="searchInput" placeholder="Try cafes, restaurants, hospitals, gyms" autocomplete="off" />
+                </div>
+              </div>
+              <div class="search-group">
+                <label for="locationInput">Your location</label>
+                <div class="input-with-icon">
+                  <span>📍</span>
+                  <input type="text" id="locationInput" placeholder="Indiranagar, Bangalore" />
+                </div>
               </div>
             </div>
-            <div class="search-group">
-              <label for="locationInput">Your location</label>
-              <div class="input-with-icon">
-                <span>📍</span>
-                <input type="text" id="locationInput" placeholder="Indiranagar, Bangalore" />
+
+            <div id="searchPanel" class="search-panel hidden">
+              <div class="search-panel-header">
+                <p>Recent searches</p>
+                <button type="button" id="clearRecent" class="link-btn">Clear</button>
               </div>
+              <ul id="searchSuggestions" class="search-suggestions"></ul>
+            </div>
+
+            <div class="hero-cta">
+              <button type="button" id="exploreBtn" class="btn-primary">Explore Nearby</button>
+              <button type="button" id="savedQuickBtn" class="btn-secondary">Saved Places</button>
             </div>
           </div>
-          <div class="hero-cta">
-            <button type="button" id="exploreBtn" class="btn-primary">Explore Nearby</button>
-            <span class="hero-tag">Live demo with map markers, favorites, and dark mode.</span>
+        </div>
+        <div class="hero-visual">
+          <div class="hero-card glass-card">
+            <p class="box-label">Featured discovery</p>
+            <h3>Blue Tokai</h3>
+            <p>Top-rated cafe with specialty coffee and rooftop vibes.</p>
+            <div class="hero-card-meta">
+              <span>⭐ 4.9</span>
+              <span>900 m</span>
+            </div>
           </div>
         </div>
       </section>
 
-      <section class="overview-cards">
-        <article class="overview-card">
-          <span>🏙️</span>
-          <div>
-            <p>Premium UI</p>
-            <strong>Launch-ready design</strong>
-          </div>
+      <section class="quick-stats">
+        <article class="stat-card reveal">
+          <strong id="statPlaces">0</strong>
+          <p>Places indexed</p>
         </article>
-        <article class="overview-card">
-          <span>⚡</span>
-          <div>
-            <p>Fast interactions</p>
-            <strong>Mobile-first and smooth</strong>
-          </div>
+        <article class="stat-card reveal">
+          <strong id="statFavorites">0</strong>
+          <p>Saved favorites</p>
         </article>
-        <article class="overview-card">
-          <span>💾</span>
-          <div>
-            <p>Favorites saved</p>
-            <strong>LocalStorage persistence</strong>
-          </div>
+        <article class="stat-card reveal">
+          <strong id="statSearches">0</strong>
+          <p>Recent searches</p>
         </article>
       </section>
 
@@ -89,11 +108,33 @@
         <div class="section-header">
           <div>
             <p class="eyebrow">Popular categories</p>
-            <h2>Choose a category and explore nearby places</h2>
+            <h2>Filter by what you need right now</h2>
           </div>
-          <span class="section-meta">Tap any card to filter the nearby list.</span>
+          <span class="section-meta">Tap a category to update nearby results instantly.</span>
         </div>
         <div class="category-grid" id="categoryGrid"></div>
+      </section>
+
+      <section class="trending" id="trending">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Trending spots</p>
+            <h2>Top-rated local experiences</h2>
+          </div>
+          <span class="section-meta">Popular restaurants, cafes and attractions the community is visiting.</span>
+        </div>
+        <div class="trending-slider" id="trendingSlider"></div>
+      </section>
+
+      <section class="saved-section" id="savedPlaces">
+        <div class="section-header">
+          <div>
+            <p class="eyebrow">Saved places</p>
+            <h2>Your favorites, stored locally</h2>
+          </div>
+          <span class="section-meta">Keep the best local options easy to revisit.</span>
+        </div>
+        <div class="saved-grid" id="savedGrid"></div>
       </section>
 
       <section class="places-section" id="places">
@@ -112,23 +153,38 @@
         <div class="section-header">
           <div>
             <p class="eyebrow">Interactive map</p>
-            <h2>Visualize nearby markers on the map</h2>
+            <h2>Simulated local map with nearby markers</h2>
           </div>
-          <p class="section-meta">Demo markers show local highlights across the area.</p>
+          <p class="section-meta">Visual map UI, simulated route preview and active location panel for a product-ready experience.</p>
         </div>
         <div class="map-card">
-          <div id="map"></div>
+          <div class="map-board" id="mapCanvas">
+            <div class="map-grid"></div>
+            <div class="map-center">You</div>
+          </div>
           <aside class="map-sidebar">
-            <h3>Featured area</h3>
-            <p id="mapLocationText">Indiranagar, Bangalore</p>
+            <div class="map-panel">
+              <p class="eyebrow">Area</p>
+              <h3>Indiranagar</h3>
+              <p id="mapLocationText">Indiranagar, Bangalore</p>
+            </div>
             <div class="map-stats">
               <div>
                 <strong id="markerCount">0</strong>
-                <span>markers on the map</span>
+                <span>nearby markers</span>
               </div>
               <div>
                 <strong id="activeCategory">All</strong>
-                <span>current filter</span>
+                <span>active filter</span>
+              </div>
+            </div>
+            <div class="route-card">
+              <h4>Route preview</h4>
+              <p>Simulated route to the nearest trending place.</p>
+              <div class="route-meta">
+                <span>5 min</span>
+                <span>1.4 km</span>
+                <span>🚶 Walk</span>
               </div>
             </div>
             <button type="button" id="refreshMapBtn" class="btn-secondary">Refresh markers</button>
@@ -139,26 +195,26 @@
       <section class="testimonials" id="reviews">
         <div class="section-header">
           <div>
-            <p class="eyebrow">Reviews</p>
-            <h2>What users love about Around You</h2>
+            <p class="eyebrow">User feedback</p>
+            <h2>What people love about Around You</h2>
           </div>
         </div>
         <div class="testimonial-grid">
-          <article class="testimonial-card">
+          <article class="testimonial-card reveal">
             <p>“I found the perfect cafe in minutes and the map made it easy to navigate. The design feels premium and intuitive.”</p>
             <footer>
               <strong>Aditi Sharma</strong>
               <span>Food blogger</span>
             </footer>
           </article>
-          <article class="testimonial-card">
+          <article class="testimonial-card reveal">
             <p>“The dark mode and quick filters make browsing nearby gyms and restaurants effortless. It feels like a polished product.”</p>
             <footer>
               <strong>Rohan Patel</strong>
               <span>Startup founder</span>
             </footer>
           </article>
-          <article class="testimonial-card">
+          <article class="testimonial-card reveal">
             <p>“I love saving favorites locally. The cards, animations and responsive layout all come together beautifully.”</p>
             <footer>
               <strong>Meera Nair</strong>
@@ -167,18 +223,58 @@
           </article>
         </div>
       </section>
+
+      <section class="faq-newsletter">
+        <div class="faq-card reveal">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">FAQ</p>
+              <h2>How Around You works</h2>
+            </div>
+          </div>
+          <div class="accordion" id="faqAccordion">
+            <button class="accordion-item active" data-answer="search">How do I search for places?</button>
+            <div class="accordion-body show" id="search">
+              Use the search bar with keywords like cafes, restaurants, hospitals, gyms or malls. Search results update instantly as you type.
+            </div>
+            <button class="accordion-item" data-answer="favorites">Can I save favorites?</button>
+            <div class="accordion-body" id="favorites">
+              Tap the save button on any card. Favorites are stored locally and appear in your saved places section.
+            </div>
+            <button class="accordion-item" data-answer="theme">Will the theme stay set?</button>
+            <div class="accordion-body" id="theme">
+              Yes. Your light/dark preference is saved in localStorage and will return with your next visit.
+            </div>
+          </div>
+        </div>
+        <div class="newsletter-card reveal">
+          <div class="section-header">
+            <div>
+              <p class="eyebrow">Newsletter</p>
+              <h2>Get launch updates and local insights</h2>
+            </div>
+          </div>
+          <p class="newsletter-copy">Subscribe to receive new feature announcements, curated local launches, and product updates.</p>
+          <form class="newsletter-form" id="newsletterForm">
+            <input type="email" id="newsletterEmail" placeholder="Enter your best email" required />
+            <button type="submit" class="btn-primary">Subscribe</button>
+          </form>
+          <p class="newsletter-note">No spam. Just honest local discovery updates.</p>
+        </div>
+      </section>
     </main>
 
     <footer class="site-footer">
       <div class="footer-grid">
         <div>
           <h3>Around You</h3>
-          <p>Discover local places with a modern experience that feels like a real travel product.</p>
+          <p>Discover local life with a startup-grade interface built for modern Bangalore explorers.</p>
         </div>
         <div>
           <h4>Quick links</h4>
           <a href="#home">Home</a>
           <a href="#categories">Categories</a>
+          <a href="#trending">Trending</a>
           <a href="#places">Nearby</a>
           <a href="#map">Map</a>
         </div>
@@ -186,53 +282,24 @@
           <h4>Contact</h4>
           <p>hello@aroundyou.app</p>
           <p>+91 98765 43210</p>
+          <div class="social-links">
+            <a href="#">Instagram</a>
+            <a href="#">Twitter</a>
+            <a href="#">LinkedIn</a>
+          </div>
         </div>
       </div>
       <div class="footer-meta">
-        <p>Built with HTML, CSS, JavaScript, and Leaflet.</p>
-        <div class="social-links">
-          <a href="#">Instagram</a>
-          <a href="#">Twitter</a>
-          <a href="#">LinkedIn</a>
-        </div>
+        <p>Built with HTML, CSS, and vanilla JavaScript for a polished local discovery MVP.</p>
+        <p>© 2026 Around You</p>
       </div>
     </footer>
   </div>
 
+  <button id="backToTop" class="back-to-top" aria-label="Back to top">↑</button>
+  <button id="quickFavBtn" class="floating-action" aria-label="Open saved places">★</button>
   <div id="toast" class="toast"></div>
 
-  <div id="authOverlay" class="auth-overlay hidden">
-    <div class="auth-modal">
-      <button type="button" class="auth-close" id="authCloseBtn" aria-label="Close auth modal">×</button>
-      <div class="auth-header">
-        <h2 id="authFormTitle">Sign In</h2>
-        <p id="authFormSubtitle">Access your favorites and personalize your search.</p>
-      </div>
-      <form id="authForm">
-        <div class="auth-tabs">
-          <button type="button" class="auth-tab active" data-mode="signIn">Sign In</button>
-          <button type="button" class="auth-tab" data-mode="signUp">Sign Up</button>
-        </div>
-        <div class="auth-fields">
-          <label for="authEmail">Email</label>
-          <input type="email" id="authEmail" name="authEmail" placeholder="you@example.com" required />
-          <label for="authPassword">Password</label>
-          <input type="password" id="authPassword" name="authPassword" placeholder="Enter a secure password" required />
-          <div id="confirmPasswordWrapper" class="hidden">
-            <label for="authConfirmPassword">Confirm Password</label>
-            <input type="password" id="authConfirmPassword" name="authConfirmPassword" placeholder="Re-enter your password" />
-          </div>
-        </div>
-        <button type="submit" class="btn-primary" id="authSubmitBtn">Sign In</button>
-        <p class="auth-note" id="authNote">No account yet? Create one in seconds.</p>
-      </form>
-      <div class="auth-footer">
-        <p>Demo login uses localStorage only. No backend required.</p>
-      </div>
-    </div>
-  </div>
-
-  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script src="script.js"></script>
 </body>
 

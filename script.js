@@ -1,18 +1,19 @@
-const DEFAULT_LAT = 12.9719;
-const DEFAULT_LON = 77.6408;
-const DEFAULT_LOCATION = 'Indiranagar, Bangalore';
-const GEOLOCATION_TIMEOUT = 8000;
-const SEARCH_DEBOUNCE_DELAY = 300;
+﻿const DEFAULT_LOCATION = 'Indiranagar, Bangalore';
+const STORAGE_FAVORITES = 'aroundYouFavorites';
+const STORAGE_SEARCHES = 'aroundYouRecentSearches';
+const STORAGE_THEME = 'aroundYouTheme';
 
 const categories = [
   { id: 'restaurants', title: 'Restaurants', description: 'Top dining spots and local favorites.', icon: '🍽️' },
   { id: 'cafes', title: 'Cafes', description: 'Cozy coffee shops and brunch cafes.', icon: '☕' },
-  { id: 'hotels', title: 'Hotels', description: 'Comfortable stays and boutique hotels.', icon: '🏨' },
-  { id: 'gyms', title: 'Gyms', description: 'Fitness centers and wellness studios.', icon: '🏋️' },
   { id: 'hospitals', title: 'Hospitals', description: 'Trusted healthcare and emergency services.', icon: '🏥' },
-  { id: 'parks', title: 'Parks', description: 'Green spaces and outdoor escapes.', icon: '🌳' },
-  { id: 'shopping', title: 'Shopping', description: 'Malls and local shopping districts.', icon: '🛍️' },
-  { id: 'attractions', title: 'Attractions', description: 'Landmarks and tourist highlights.', icon: '🎡' }
+  { id: 'gyms', title: 'Gyms', description: 'Fitness centers and wellness studios.', icon: '🏋️' },
+  { id: 'shopping', title: 'Shopping', description: 'Malls and local retail districts.', icon: '🛍️' },
+  { id: 'attractions', title: 'Attractions', description: 'Tourist highlights and local landmarks.', icon: '🎡' },
+  { id: 'petrol', title: 'Petrol bunks', description: 'Fuel stations for swift refuels.', icon: '⛽' },
+  { id: 'transport', title: 'Transport', description: 'Bus and train hubs nearby.', icon: '🚉' },
+  { id: 'hotels', title: 'Hotels', description: 'Boutique stays and modern rooms.', icon: '🏨' },
+  { id: 'parks', title: 'Parks', description: 'Green spaces for running and relaxing.', icon: '🌳' }
 ];
 
 const places = [
@@ -20,119 +21,171 @@ const places = [
     id: 'grain-bistro',
     name: 'Grain Bistro',
     category: 'restaurants',
+    address: '12th Main, Indiranagar',
     description: 'Modern dining with biryani, kebabs and craft cocktails.',
     rating: 4.8,
     distance: '1.2 km',
     status: 'Open now',
     price: '₹300 - ₹800',
     image: 'https://images.unsplash.com/photo-1551782450-a2132b4ba21d?auto=format&fit=crop&w=900&q=80',
-    lat: 12.9725,
-    lon: 77.6400
+    tag: 'Trending'
   },
   {
     id: 'fava-cafe',
-    name: 'Fava',
+    name: 'Fava Cafe',
     category: 'restaurants',
-    description: 'Charming Mediterranean kitchen with salads and brunch.',
+    address: '100 Feet Road, Indiranagar',
+    description: 'Mediterranean kitchen with light brunch and sharable plates.',
     rating: 4.7,
     distance: '1.5 km',
     status: 'Open now',
     price: '₹250 - ₹650',
     image: 'https://images.unsplash.com/photo-1504674900247-0877df9cc836?auto=format&fit=crop&w=900&q=80',
-    lat: 12.9689,
-    lon: 77.6422
+    tag: 'Popular'
   },
   {
     id: 'blue-tokai',
     name: 'Blue Tokai',
     category: 'cafes',
-    description: 'Specialty coffee, cold brew and light bites.',
+    address: 'Indiranagar 100 Feet Road',
+    description: 'Specialty coffee, cold brew and seasonal tasting flights.',
     rating: 4.9,
     distance: '900 m',
     status: 'Open now',
-    price: '₹150 - ₹300',
+    price: '₹150 - ₹320',
     image: 'https://images.unsplash.com/photo-1511920170033-f8396924c348?auto=format&fit=crop&w=900&q=80',
-    lat: 12.9738,
-    lon: 77.6465
+    tag: 'Top Rated'
   },
   {
     id: 'longstay-inn',
     name: 'Longstay Inn',
     category: 'hotels',
+    address: 'Old Madras Road',
     description: 'Modern rooms, rooftop lounge and city views.',
     rating: 4.6,
     distance: '2.0 km',
     status: 'Check in available',
-    price: '₹3500 - ₹6800',
+    price: '₹3,500 - ₹6,800',
     image: 'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=900&q=80',
-    lat: 12.9755,
-    lon: 77.6382
+    tag: 'Popular'
   },
   {
     id: 'cult-fit',
     name: 'Cult.fit',
     category: 'gyms',
-    description: 'High-energy workouts, group classes and trainers.',
+    address: 'Brookefield',
+    description: 'High-energy workouts, group classes and personal trainers.',
     rating: 4.5,
     distance: '1.0 km',
     status: 'Open now',
-    price: '₹3000 / mo',
+    price: '₹3,000 / mo',
     image: 'https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=900&q=80',
-    lat: 12.9720,
-    lon: 77.6374
+    tag: 'Trending'
   },
   {
     id: 'apollo-cradle',
     name: 'Apollo Cradle',
     category: 'hospitals',
-    description: '24/7 emergency care with maternity and specialties.',
+    address: 'Old Airport Road',
+    description: '24/7 emergency care with maternity and specialty centers.',
     rating: 4.4,
     distance: '2.4 km',
     status: 'Open now',
     price: 'Premium',
     image: 'https://images.unsplash.com/photo-1580281657522-9b7b3c0c8f6d?auto=format&fit=crop&w=900&q=80',
-    lat: 12.9768,
-    lon: 77.6419
+    tag: 'Popular'
   },
   {
     id: 'milkyway-park',
     name: 'Milkyway Park',
     category: 'parks',
+    address: '7th Block, Jayanagar',
     description: 'Wide lawns, jogging trails and outdoor seating.',
     rating: 4.7,
     distance: '1.3 km',
     status: 'Open until 7:00 PM',
     price: 'Free',
     image: 'https://images.unsplash.com/photo-1500530855697-b586d89ba3ee?auto=format&fit=crop&w=900&q=80',
-    lat: 12.9710,
-    lon: 77.6457
+    tag: 'Trending'
   },
   {
     id: 'mall-square',
     name: 'Mall Square',
     category: 'shopping',
+    address: 'Forum Mall, Koramangala',
     description: 'Fashion, electronics, food court and cinema.',
     rating: 4.5,
     distance: '2.8 km',
     status: 'Open now',
     price: 'Varies',
     image: 'https://images.unsplash.com/photo-1512436991641-6745cdb1723f?auto=format&fit=crop&w=900&q=80',
-    lat: 12.9802,
-    lon: 77.6430
+    tag: 'Trending'
   },
   {
     id: 'city-eye',
     name: 'City Eye',
     category: 'attractions',
+    address: 'Riverside Drive',
     description: 'Riverside attraction with skyline views and live events.',
     rating: 4.8,
     distance: '3.1 km',
     status: 'Open until 11:00 PM',
     price: '₹200 - ₹500',
     image: 'https://images.unsplash.com/photo-1519817650390-64a93db511aa?auto=format&fit=crop&w=900&q=80',
-    lat: 12.9786,
-    lon: 77.6364
+    tag: 'Top Rated'
+  },
+  {
+    id: 'shell-crossroad',
+    name: 'Shell Crossroad',
+    category: 'petrol',
+    address: 'Indiranagar Cross',
+    description: '24/7 fuel station with convenience store.',
+    rating: 4.2,
+    distance: '850 m',
+    status: 'Open now',
+    price: 'Petrol ₹107 / L',
+    image: 'https://images.unsplash.com/photo-1512427691650-1d3e0443f8e4?auto=format&fit=crop&w=900&q=80',
+    tag: 'Popular'
+  },
+  {
+    id: 'metro-junction',
+    name: 'Metro Junction',
+    category: 'transport',
+    address: 'Indiranagar Metro Station',
+    description: 'Rapid transit access for the city’s busiest neighborhoods.',
+    rating: 4.6,
+    distance: '1.1 km',
+    status: 'Running now',
+    price: '₹30 - ₹50',
+    image: 'https://images.unsplash.com/photo-1514619146873-ffb81762b267?auto=format&fit=crop&w=900&q=80',
+    tag: 'Trending'
+  },
+  {
+    id: 'central-station',
+    name: 'Central Station',
+    category: 'transport',
+    address: 'Bangalore To',
+    description: 'Main rail hub with long-distance and suburban trains.',
+    rating: 4.4,
+    distance: '4.5 km',
+    status: 'Active',
+    price: 'Varies',
+    image: 'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?auto=format&fit=crop&w=900&q=80',
+    tag: 'Popular'
   }
+];
+
+const MARKER_POSITIONS = [
+  { top: '18%', left: '20%' },
+  { top: '15%', left: '65%' },
+  { top: '45%', left: '72%' },
+  { top: '72%', left: '55%' },
+  { top: '65%', left: '28%' },
+  { top: '33%', left: '42%' },
+  { top: '55%', left: '18%' },
+  { top: '22%', left: '48%' },
+  { top: '78%', left: '72%' },
+  { top: '50%', left: '60%' }
 ];
 
 const dom = {
@@ -140,42 +193,75 @@ const dom = {
   navLinks: document.querySelector('.nav-links'),
   themeToggle: document.getElementById('themeToggle'),
   exploreBtn: document.getElementById('exploreBtn'),
+  savedQuickBtn: document.getElementById('savedQuickBtn'),
   searchInput: document.getElementById('searchInput'),
   locationInput: document.getElementById('locationInput'),
   categoryGrid: document.getElementById('categoryGrid'),
   placesContainer: document.getElementById('placesContainer'),
   loadingSkeleton: document.getElementById('loadingSkeleton'),
   filterRow: document.getElementById('filterRow'),
+  mapCanvas: document.getElementById('mapCanvas'),
   mapLocationText: document.getElementById('mapLocationText'),
   activeCategoryLabel: document.getElementById('activeCategory'),
   markerCountLabel: document.getElementById('markerCount'),
   refreshMapBtn: document.getElementById('refreshMapBtn'),
   toast: document.getElementById('toast'),
-  authToggleBtn: document.getElementById('authToggleBtn'),
-  authOverlay: document.getElementById('authOverlay'),
-  authCloseBtn: document.getElementById('authCloseBtn'),
-  authForm: document.getElementById('authForm'),
-  authFormTitle: document.getElementById('authFormTitle'),
-  authFormSubtitle: document.getElementById('authFormSubtitle'),
-  authPassword: document.getElementById('authPassword'),
-  authSubmitBtn: document.getElementById('authSubmitBtn'),
-  authNote: document.getElementById('authNote'),
-  confirmPasswordWrapper: document.getElementById('confirmPasswordWrapper'),
-  authConfirmPassword: document.getElementById('authConfirmPassword'),
-  authTabs: document.querySelectorAll('.auth-tab')
+  savedGrid: document.getElementById('savedGrid'),
+  trendingSlider: document.getElementById('trendingSlider'),
+  backToTop: document.getElementById('backToTop'),
+  quickFavBtn: document.getElementById('quickFavBtn'),
+  searchPanel: document.getElementById('searchPanel'),
+  searchSuggestions: document.getElementById('searchSuggestions'),
+  clearRecent: document.getElementById('clearRecent'),
+  newsletterForm: document.getElementById('newsletterForm'),
+  newsletterEmail: document.getElementById('newsletterEmail'),
+  faqAccordion: document.getElementById('faqAccordion'),
+  heroTyping: document.getElementById('heroTyping')
 };
 
-let map;
-let markerLayer;
 let activeCategory = 'all';
 let searchQuery = '';
 let favorites = [];
+let recentSearches = [];
 let prefersDark = false;
-let authMode = 'signIn';
-let currentUser = null;
-let userLocation = { lat: DEFAULT_LAT, lon: DEFAULT_LON, name: DEFAULT_LOCATION };
 let searchDebounceTimer = null;
-let mapInitialized = false;
+let typingIndex = 0;
+let typingLetter = 0;
+let typingForward = true;
+const typingTerms = ['restaurants.', 'cafes.', 'gyms.', 'hospitals.', 'petrol bunks.', 'train stations.'];
+
+function showToast(message) {
+  dom.toast.textContent = message;
+  dom.toast.classList.add('show');
+  window.clearTimeout(dom.toast.timeoutId);
+  dom.toast.timeoutId = window.setTimeout(() => dom.toast.classList.remove('show'), 3000);
+}
+
+function saveFavorites() {
+  localStorage.setItem(STORAGE_FAVORITES, JSON.stringify(favorites));
+}
+
+function loadFavorites() {
+  favorites = JSON.parse(localStorage.getItem(STORAGE_FAVORITES)) || [];
+}
+
+function saveRecentSearches() {
+  localStorage.setItem(STORAGE_SEARCHES, JSON.stringify(recentSearches));
+}
+
+function loadRecentSearches() {
+  recentSearches = JSON.parse(localStorage.getItem(STORAGE_SEARCHES)) || [];
+}
+
+function updateStats() {
+  document.getElementById('statPlaces').textContent = places.length;
+  document.getElementById('statFavorites').textContent = favorites.length;
+  document.getElementById('statSearches').textContent = recentSearches.length;
+}
+
+function getCategoryTitle(id) {
+  return categories.find((item) => item.id === id)?.title || id;
+}
 
 function createSkeletonCards() {
   dom.loadingSkeleton.innerHTML = '';
@@ -193,216 +279,12 @@ function hideSkeleton() {
   dom.loadingSkeleton.classList.add('hidden');
 }
 
-function showToast(message) {
-  dom.toast.textContent = message;
-  dom.toast.classList.add('show');
-  window.clearTimeout(dom.toast.timeoutId);
-  dom.toast.timeoutId = window.setTimeout(() => dom.toast.classList.remove('show'), 2800);
-}
-
-function saveFavorites() {
-  localStorage.setItem('aroundYouFavorites', JSON.stringify(favorites));
-}
-
-function loadFavorites() {
-  favorites = JSON.parse(localStorage.getItem('aroundYouFavorites')) || [];
-}
-
-function getStoredUsers() {
-  return JSON.parse(localStorage.getItem('aroundYouUsers')) || [];
-}
-
-function saveStoredUsers(users) {
-  localStorage.setItem('aroundYouUsers', JSON.stringify(users));
-}
-
-function loadAuthState() {
-  const storedUser = localStorage.getItem('aroundYouCurrentUser');
-  if (storedUser) {
-    currentUser = JSON.parse(storedUser);
-  }
-}
-
-function saveAuthState() {
-  if (currentUser) {
-    localStorage.setItem('aroundYouCurrentUser', JSON.stringify(currentUser));
-  } else {
-    localStorage.removeItem('aroundYouCurrentUser');
-  }
-}
-
-function updateAuthState() {
-  if (currentUser) {
-    dom.authToggleBtn.textContent = `Hi, ${currentUser.email.split('@')[0]}`;
-    dom.authToggleBtn.classList.add('signed-in');
-  } else {
-    dom.authToggleBtn.textContent = 'Sign In';
-    dom.authToggleBtn.classList.remove('signed-in');
-  }
-}
-
-function openAuthModal(mode = 'signIn') {
-  authMode = mode;
-  dom.authOverlay.classList.remove('hidden');
-  dom.authFormTitle.textContent = mode === 'signIn' ? 'Sign In' : 'Create account';
-  dom.authFormSubtitle.textContent = mode === 'signIn' ? 'Access your favorites and personalize your search.' : 'Create a free account to save your favorite places.';
-  dom.authSubmitBtn.textContent = mode === 'signIn' ? 'Sign In' : 'Sign Up';
-  dom.authNote.textContent = mode === 'signIn' ? 'No account yet? Create one in seconds.' : 'Already have an account? Sign in instead.';
-  dom.confirmPasswordWrapper.classList.toggle('hidden', mode === 'signIn');
-  dom.authPassword.value = '';
-  dom.authEmail.value = '';
-  dom.authConfirmPassword.value = '';
-  dom.authTabs.forEach((tab) => {
-    tab.classList.toggle('active', tab.dataset.mode === mode);
-  });
-}
-
-function closeAuthModal() {
-  dom.authOverlay.classList.add('hidden');
-}
-
-function handleAuthSubmit(event) {
-  event.preventDefault();
-  const email = dom.authEmail.value.trim().toLowerCase();
-  const password = dom.authPassword.value;
-  const confirmPassword = dom.authConfirmPassword.value;
-  if (!email || !password || (authMode === 'signUp' && !confirmPassword)) {
-    showToast('Please fill in all fields.');
-    return;
-  }
-  if (authMode === 'signUp' && password !== confirmPassword) {
-    showToast('Passwords do not match.');
-    return;
-  }
-  const users = getStoredUsers();
-  if (authMode === 'signUp') {
-    if (users.some((user) => user.email === email)) {
-      showToast('An account already exists with this email.');
-      return;
-    }
-    const newUser = { email, password };
-    users.push(newUser);
-    saveStoredUsers(users);
-    currentUser = newUser;
-    saveAuthState();
-    closeAuthModal();
-    updateAuthState();
-    showToast('Account created and signed in successfully.');
-    return;
-  }
-  const existingUser = users.find((user) => user.email === email && user.password === password);
-  if (existingUser) {
-    currentUser = existingUser;
-    saveAuthState();
-    closeAuthModal();
-    updateAuthState();
-    showToast('Signed in successfully.');
-  } else {
-    showToast('Invalid email or password.');
-  }
-}
-
-function handleAuthTabSwitch(event) {
-  const mode = event.target.dataset.mode;
-  if (!mode) return;
-  openAuthModal(mode);
-}
-
-function handleAuthToggle() {
-  if (currentUser) {
-    currentUser = null;
-    saveAuthState();
-    updateAuthState();
-    showToast('Signed out successfully.');
-    return;
-  }
-  openAuthModal('signIn');
-}
-
-function handleOverlayClick(event) {
-  if (event.target === dom.authOverlay) {
-    closeAuthModal();
-  }
-}
-
-function updateAuthForms() {
-  dom.authForm.querySelectorAll('input').forEach((input) => {
-    input.value = '';
-  });
-}
-
-function initAuthListeners() {
-  dom.authToggleBtn.addEventListener('click', handleAuthToggle);
-  dom.authCloseBtn.addEventListener('click', closeAuthModal);
-  dom.authOverlay.addEventListener('click', handleOverlayClick);
-  dom.authForm.addEventListener('submit', handleAuthSubmit);
-  dom.authTabs.forEach((tab) => tab.addEventListener('click', handleAuthTabSwitch));
-}
-
-function updateTheme() {
-  document.documentElement.classList.toggle('dark', prefersDark);
-  dom.themeToggle.textContent = prefersDark ? '☀️' : '🌙';
-  localStorage.setItem('aroundYouTheme', prefersDark ? 'dark' : 'light');
-}
-
-function initTheme() {
-  const storedTheme = localStorage.getItem('aroundYouTheme');
-  if (storedTheme) {
-    prefersDark = storedTheme === 'dark';
-  } else {
-    prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
-  }
-  updateTheme();
-}
-
-function toggleMenu() {
-  dom.navLinks.classList.toggle('active');
-}
-
-function initCategoryCards() {
-  dom.categoryGrid.innerHTML = categories.map((category) => `
-    <article class="category-card" data-category="${category.id}">
-      <div class="category-card-icon">${category.icon}</div>
-      <div>
-        <h3>${category.title}</h3>
-        <p>${category.description}</p>
-      </div>
-    </article>
-  `).join('');
-  dom.categoryGrid.querySelectorAll('.category-card').forEach((card) => {
-    card.addEventListener('click', () => {
-      const selected = card.dataset.category;
-      handleCategorySelect(selected);
-    });
-  });
-}
-
-function initFilterPills() {
-  const pills = ['all', ...categories.map((item) => item.id)];
-  dom.filterRow.innerHTML = pills.map((pill) => `
-    <div class="filter-pill ${pill === 'all' ? 'selected' : ''}" data-filter="${pill}">${pill === 'all' ? 'All' : pill.charAt(0).toUpperCase() + pill.slice(1)}</div>
-  `).join('');
-  dom.filterRow.querySelectorAll('.filter-pill').forEach((pill) => {
-    pill.addEventListener('click', () => {
-      dom.filterRow.querySelector('.filter-pill.selected')?.classList.remove('selected');
-      pill.classList.add('selected');
-      handleCategorySelect(pill.dataset.filter);
-    });
-  });
-}
-
-function handleCategorySelect(category) {
-  activeCategory = category;
-  dom.activeCategoryLabel.textContent = category === 'all' ? 'All' : category.charAt(0).toUpperCase() + category.slice(1);
-  renderPlaces();
-  updateMapMarkers();
-  showToast(`${dom.activeCategoryLabel.textContent} filter applied`);
-}
-
 function filterPlaces() {
+  const query = searchQuery.trim().toLowerCase();
   return places.filter((place) => {
     const matchesCategory = activeCategory === 'all' || place.category === activeCategory;
-    const matchesSearch = place.name.toLowerCase().includes(searchQuery) || place.category.includes(searchQuery);
+    const matchesSearch = !query || [place.name, place.category, place.address, place.description]
+      .some((field) => field.toLowerCase().includes(query));
     return matchesCategory && matchesSearch;
   });
 }
@@ -411,8 +293,14 @@ function renderPlaces() {
   createSkeletonCards();
   window.setTimeout(() => {
     const filteredPlaces = filterPlaces();
+    if (filteredPlaces.length === 0) {
+      dom.placesContainer.innerHTML = '<div class="places-empty"><strong>No places found.</strong><p>Try adjusting your keywords or category.</p></div>';
+      hideSkeleton();
+      return;
+    }
+
     dom.placesContainer.innerHTML = filteredPlaces.map((place) => `
-      <article class="place-card">
+      <article class="place-card reveal">
         <img class="place-thumbnail" src="${place.image}" alt="${place.name}" loading="lazy" />
         <div class="place-content">
           <div class="place-meta">
@@ -426,7 +314,7 @@ function renderPlaces() {
           </div>
           <div class="place-tags">
             <span class="place-pill">${place.price}</span>
-            <span class="place-pill">${place.category}</span>
+            <span class="place-pill">${getCategoryTitle(place.category)}</span>
           </div>
           <div class="place-actions">
             <button class="btn-secondary" data-action="directions" data-id="${place.id}">Open in Maps</button>
@@ -438,107 +326,323 @@ function renderPlaces() {
 
     hideSkeleton();
     attachPlaceHandlers();
+    initRevealAnimations();
+  }, 600);
+}
 
-    if (filteredPlaces.length === 0) {
-      dom.placesContainer.innerHTML = '<p class="empty-state">No places matched your search. Try a different category or search term.</p>';
-    }
-  }, 700);
+function renderSavedPlaces() {
+  if (favorites.length === 0) {
+    dom.savedGrid.innerHTML = '<div class="places-empty"><strong>No saved places yet.</strong><p>Tap the save button on any card to keep favorites here.</p></div>';
+    return;
+  }
+
+  const savedPlaces = places.filter((place) => favorites.includes(place.id));
+  dom.savedGrid.innerHTML = savedPlaces.map((place) => `
+    <article class="saved-card reveal">
+      <img class="place-thumbnail" src="${place.image}" alt="${place.name}" loading="lazy" />
+      <div class="saved-content">
+        <div class="place-meta">
+          <span>⭐ ${place.rating}</span>
+          <span>• ${place.distance}</span>
+          <span>• ${place.status}</span>
+        </div>
+        <h3 class="place-title">${place.name}</h3>
+        <p class="place-description">${place.description}</p>
+        <div class="saved-tags">
+          <span class="saved-pill">${getCategoryTitle(place.category)}</span>
+          <span class="saved-pill">${place.address}</span>
+        </div>
+        <div class="saved-actions">
+          <button class="btn-secondary" data-action="directions" data-id="${place.id}">Open in Maps</button>
+          <button class="btn-primary" data-action="remove" data-id="${place.id}">Remove</button>
+        </div>
+      </div>
+    </article>
+  `).join('');
+  attachSavedHandlers();
+}
+
+function renderTrending() {
+  const trendingPlaces = places
+    .filter((place) => ['Trending', 'Popular', 'Top Rated'].includes(place.tag))
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, 6);
+
+  dom.trendingSlider.innerHTML = trendingPlaces.map((place) => `
+    <article class="trending-card reveal">
+      <span class="trending-badge">${place.tag}</span>
+      <h3>${place.name}</h3>
+      <p>${place.description}</p>
+      <div class="trending-meta">
+        <span>⭐ ${place.rating}</span>
+        <span>• ${place.distance}</span>
+      </div>
+    </article>
+  `).join('');
 }
 
 function attachPlaceHandlers() {
-  dom.placesContainer.querySelectorAll('button[data-action="directions"]').forEach((button) => {
-    button.addEventListener('click', () => {
-      const place = places.find((item) => item.id === button.dataset.id);
-      if (place) {
-        const query = `${place.name}, ${userLocation.name}`;
-        window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`);
-        showToast(`📍 Opening ${place.name} in Google Maps...`);
-      }
-    });
-  });
-  dom.placesContainer.querySelectorAll('button[data-action="favorite"]').forEach((button) => {
+  dom.placesContainer.querySelectorAll('[data-action="directions"]').forEach((button) => {
     button.addEventListener('click', () => {
       const place = places.find((item) => item.id === button.dataset.id);
       if (!place) return;
-      const index = favorites.indexOf(place.id);
+      window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}`);
+      showToast(`Opening ${place.name} in Maps...`);
+    });
+  });
+
+  dom.placesContainer.querySelectorAll('[data-action="favorite"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const id = button.dataset.id;
+      const index = favorites.indexOf(id);
       if (index === -1) {
-        favorites.push(place.id);
+        favorites.push(id);
         button.textContent = '★ Saved';
-        button.classList.add('favorited');
-        showToast(`❤️ ${place.name} added to favorites`);
+        showToast('Saved to favorites');
       } else {
         favorites.splice(index, 1);
         button.textContent = '☆ Save';
-        button.classList.remove('favorited');
-        showToast(`${place.name} removed from favorites`);
+        showToast('Removed from favorites');
       }
       saveFavorites();
+      updateStats();
+      renderSavedPlaces();
     });
   });
 }
 
-function initMap(lat = DEFAULT_LAT, lon = DEFAULT_LON) {
-  if (mapInitialized) return;
-  map = L.map('map', { zoomControl: true }).setView([lat, lon], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
-  }).addTo(map);
-  markerLayer = L.layerGroup().addTo(map);
-  L.marker([lat, lon]).addTo(markerLayer).bindPopup('📍 You are here', { offset: [0, -10] });
-  mapInitialized = true;
-  updateMapMarkers();
-}
-
-function updateMapMarkers() {
-  if (!map || !markerLayer) return;
-  markerLayer.clearLayers();
-  L.marker([DEFAULT_LAT, DEFAULT_LON]).addTo(markerLayer).bindPopup(DEFAULT_LOCATION);
-  const filteredPlaces = filterPlaces();
-  filteredPlaces.forEach((place) => {
-    L.marker([place.lat, place.lon])
-      .addTo(markerLayer)
-      .bindPopup(`<strong>${place.name}</strong><br>${place.distance}`);
+function attachSavedHandlers() {
+  dom.savedGrid.querySelectorAll('[data-action="directions"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const place = places.find((item) => item.id === button.dataset.id);
+      if (!place) return;
+      window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(place.name + ' ' + place.address)}`);
+      showToast(`Opening ${place.name} in Maps...`);
+    });
   });
-  dom.markerCountLabel.textContent = filteredPlaces.length + 1;
+
+  dom.savedGrid.querySelectorAll('[data-action="remove"]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const id = button.dataset.id;
+      favorites = favorites.filter((favoriteId) => favoriteId !== id);
+      saveFavorites();
+      updateStats();
+      renderSavedPlaces();
+      renderPlaces();
+    });
+  });
 }
 
-function refreshMarkers() {
-  updateMapMarkers();
-  showToast('Map markers refreshed');
+function renderMapMarkers() {
+  dom.mapCanvas.querySelectorAll('.map-marker').forEach((marker) => marker.remove());
+  const filteredPlaces = filterPlaces();
+  filteredPlaces.slice(0, MARKER_POSITIONS.length).forEach((place, index) => {
+    const position = MARKER_POSITIONS[index];
+    const marker = document.createElement('div');
+    marker.className = 'map-marker reveal';
+    marker.style.top = position.top;
+    marker.style.left = position.left;
+    marker.textContent = place.category === 'transport' ? '🚉' : place.category === 'petrol' ? '⛽' : '📍';
+    marker.title = `${place.name} • ${place.distance}`;
+    dom.mapCanvas.appendChild(marker);
+  });
+  dom.markerCountLabel.textContent = Math.min(filteredPlaces.length, MARKER_POSITIONS.length);
 }
 
-function debounceSearch(query) {
-  searchQuery = query.trim().toLowerCase();
-  window.clearTimeout(searchDebounceTimer);
-  searchDebounceTimer = window.setTimeout(() => {
-    renderPlaces();
-    updateMapMarkers();
-  }, SEARCH_DEBOUNCE_DELAY);
+function updateMapDetails() {
+  dom.activeCategoryLabel.textContent = activeCategory === 'all' ? 'All' : getCategoryTitle(activeCategory);
+  dom.mapLocationText.textContent = dom.locationInput.value.trim() || DEFAULT_LOCATION;
 }
 
-function requestUserLocation() {
-  if (!navigator.geolocation) {
-    showToast('Geolocation not available in your browser.');
+function handleCategorySelect(category) {
+  activeCategory = category;
+  dom.filterRow.querySelector('.filter-pill.selected')?.classList.remove('selected');
+  dom.filterRow.querySelector(`[data-filter="${category}"]`)?.classList.add('selected');
+  dom.categoryGrid.querySelectorAll('.category-card').forEach((card) => {
+    card.classList.toggle('selected', card.dataset.category === category);
+  });
+  updateMapDetails();
+  renderPlaces();
+  renderTrending();
+  renderMapMarkers();
+  showToast(`${getCategoryTitle(category)} filter applied`);
+}
+
+function initCategoryCards() {
+  dom.categoryGrid.innerHTML = categories.map((category) => `
+    <article class="category-card" data-category="${category.id}">
+      <div class="category-card-icon">${category.icon}</div>
+      <div>
+        <h3>${category.title}</h3>
+        <p>${category.description}</p>
+      </div>
+    </article>
+  `).join('');
+
+  dom.categoryGrid.querySelectorAll('.category-card').forEach((card) => {
+    card.addEventListener('click', () => handleCategorySelect(card.dataset.category));
+  });
+}
+
+function initFilterPills() {
+  const pills = ['all', ...categories.map((item) => item.id)];
+  dom.filterRow.innerHTML = pills.map((pill) => `
+    <div class="filter-pill ${pill === 'all' ? 'selected' : ''}" data-filter="${pill}">${pill === 'all' ? 'All' : getCategoryTitle(pill)}</div>
+  `).join('');
+
+  dom.filterRow.querySelectorAll('.filter-pill').forEach((pill) => {
+    pill.addEventListener('click', () => handleCategorySelect(pill.dataset.filter));
+  });
+}
+
+function toggleMenu() {
+  dom.navLinks.classList.toggle('active');
+}
+
+function openSearchPanel() {
+  dom.searchPanel.classList.remove('hidden');
+}
+
+function closeSearchPanel() {
+  dom.searchPanel.classList.add('hidden');
+}
+
+function buildSearchSuggestions(query) {
+  const normalized = query.trim().toLowerCase();
+  const suggestions = [];
+  if (normalized) {
+    const categoryMatches = categories
+      .filter((category) => category.title.toLowerCase().includes(normalized))
+      .map((category) => category.title);
+    const placeMatches = places
+      .filter((place) => place.name.toLowerCase().includes(normalized) || place.address.toLowerCase().includes(normalized))
+      .slice(0, 4)
+      .map((place) => place.name);
+    suggestions.push(...categoryMatches, ...placeMatches);
+  }
+
+  suggestions.push(...recentSearches.slice(0, 5));
+  return Array.from(new Set(suggestions)).slice(0, 8);
+}
+
+function populateSearchPanel(query) {
+  const suggestions = buildSearchSuggestions(query);
+  if (suggestions.length === 0) {
+    dom.searchSuggestions.innerHTML = '<li>No recent or matching searches yet.</li>';
     return;
   }
-  showToast('📍 Detecting your location...');
-  navigator.geolocation.getCurrentPosition(
-    (position) => {
-      userLocation.lat = position.coords.latitude;
-      userLocation.lon = position.coords.longitude;
-      dom.locationInput.value = `${userLocation.lat.toFixed(4)}, ${userLocation.lon.toFixed(4)}`;
-      showToast(`✓ Location updated!`);
-      if (mapInitialized) {
-        map.setView([userLocation.lat, userLocation.lon], 13);
-        updateMapMarkers();
+  dom.searchSuggestions.innerHTML = suggestions.map((item) => `<li>${item}</li>`).join('');
+  dom.searchSuggestions.querySelectorAll('li').forEach((item) => item.addEventListener('click', () => {
+    dom.searchInput.value = item.textContent;
+    searchQuery = item.textContent.toLowerCase();
+    addRecentSearch(item.textContent);
+    renderPlaces();
+    renderMapMarkers();
+    closeSearchPanel();
+  }));
+}
+
+function addRecentSearch(term) {
+  const trimmed = term.trim();
+  if (!trimmed) return;
+  recentSearches = [trimmed, ...recentSearches.filter((item) => item.toLowerCase() !== trimmed.toLowerCase())].slice(0, 8);
+  saveRecentSearches();
+  updateStats();
+}
+
+function initSearchListeners() {
+  dom.searchInput.addEventListener('input', (event) => {
+    searchQuery = event.target.value.toLowerCase();
+    openSearchPanel();
+    populateSearchPanel(event.target.value);
+    window.clearTimeout(searchDebounceTimer);
+    searchDebounceTimer = window.setTimeout(() => {
+      renderPlaces();
+      renderMapMarkers();
+    }, 240);
+  });
+
+  dom.searchInput.addEventListener('focus', () => {
+    populateSearchPanel(dom.searchInput.value);
+    openSearchPanel();
+  });
+
+  dom.searchInput.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') {
+      event.preventDefault();
+      addRecentSearch(dom.searchInput.value);
+      renderPlaces();
+      renderMapMarkers();
+      closeSearchPanel();
+    }
+  });
+
+  dom.clearRecent.addEventListener('click', () => {
+    recentSearches = [];
+    saveRecentSearches();
+    populateSearchPanel(dom.searchInput.value);
+    updateStats();
+    showToast('Recent searches cleared');
+  });
+}
+
+function initNewsletter() {
+  dom.newsletterForm.addEventListener('submit', (event) => {
+    event.preventDefault();
+    const email = dom.newsletterEmail.value.trim();
+    if (!email) {
+      showToast('Enter an email to subscribe.');
+      return;
+    }
+    dom.newsletterEmail.value = '';
+    showToast('Thanks! You’re subscribed.');
+  });
+}
+
+function initFAQAccordion() {
+  dom.faqAccordion.querySelectorAll('.accordion-item').forEach((button) => {
+    button.addEventListener('click', () => {
+      const targetId = button.dataset.answer;
+      const body = document.getElementById(targetId);
+      const isActive = button.classList.contains('active');
+      dom.faqAccordion.querySelectorAll('.accordion-item').forEach((item) => item.classList.remove('active'));
+      dom.faqAccordion.querySelectorAll('.accordion-body').forEach((item) => item.classList.remove('show'));
+      if (!isActive) {
+        button.classList.add('active');
+        body.classList.add('show');
       }
-    },
-    (error) => {
-      console.log('Geolocation error:', error);
-      showToast('📍 Unable to access location. Using default area.');
-    },
-    { timeout: GEOLOCATION_TIMEOUT, enableHighAccuracy: false }
-  );
+    });
+  });
+}
+
+function initTypingAnimation() {
+  if (!dom.heroTyping) return;
+  const updateTyping = () => {
+    const currentTerm = typingTerms[typingIndex];
+    if (typingForward) {
+      typingLetter += 1;
+      if (typingLetter > currentTerm.length) {
+        typingForward = false;
+        window.setTimeout(updateTyping, 1200);
+        return;
+      }
+    } else {
+      typingLetter -= 1;
+      if (typingLetter < 0) {
+        typingForward = true;
+        typingIndex = (typingIndex + 1) % typingTerms.length;
+      }
+    }
+    dom.heroTyping.textContent = currentTerm.slice(0, Math.max(typingLetter, 0));
+    window.setTimeout(updateTyping, typingForward ? 120 : 60);
+  };
+  updateTyping();
+}
+
+function handleScroll() {
+  const shouldShow = window.scrollY > 420;
+  dom.backToTop.classList.toggle('show', shouldShow);
+  dom.quickFavBtn.classList.toggle('show', shouldShow);
 }
 
 function initListeners() {
@@ -548,25 +652,32 @@ function initListeners() {
     updateTheme();
   });
   dom.exploreBtn.addEventListener('click', () => {
-    requestUserLocation();
-    window.setTimeout(() => {
-      document.getElementById('places').scrollIntoView({ behavior: 'smooth' });
-    }, 200);
+    document.getElementById('places').scrollIntoView({ behavior: 'smooth' });
+    showToast('Let’s explore nearby places.');
   });
-  dom.searchInput.addEventListener('input', (event) => {
-    debounceSearch(event.target.value);
+  dom.savedQuickBtn.addEventListener('click', () => {
+    document.getElementById('savedPlaces').scrollIntoView({ behavior: 'smooth' });
   });
-  dom.locationInput.addEventListener('focus', requestUserLocation);
-  dom.locationInput.addEventListener('change', (event) => {
-    userLocation.name = event.target.value || DEFAULT_LOCATION;
-    dom.mapLocationText.textContent = userLocation.name;
-    showToast(`📍 Searching around ${userLocation.name}`);
+  dom.backToTop.addEventListener('click', () => window.scrollTo({ top: 0, behavior: 'smooth' }));
+  dom.quickFavBtn.addEventListener('click', () => document.getElementById('savedPlaces').scrollIntoView({ behavior: 'smooth' }));
+  dom.refreshMapBtn.addEventListener('click', () => {
+    renderMapMarkers();
+    showToast('Map markers refreshed');
   });
-  dom.refreshMapBtn.addEventListener('click', refreshMarkers);
+
+  window.addEventListener('scroll', handleScroll);
   window.addEventListener('click', (event) => {
+    if (!event.target.closest('.search-panel') && !event.target.closest('#searchInput')) {
+      closeSearchPanel();
+    }
     if (!event.target.closest('.nav-links') && !event.target.closest('.menu-btn')) {
       dom.navLinks.classList.remove('active');
     }
+  });
+
+  dom.locationInput.addEventListener('change', () => {
+    updateMapDetails();
+    showToast(`Searching around ${dom.locationInput.value || DEFAULT_LOCATION}`);
   });
 }
 
@@ -579,27 +690,41 @@ function initRevealAnimations() {
       }
     });
   }, { threshold: 0.18 });
-  document.querySelectorAll('.category-card, .place-card, .testimonial-card, .map-card, .overview-card').forEach((element) => {
-    element.classList.add('reveal');
-    observer.observe(element);
-  });
+
+  document.querySelectorAll('.reveal').forEach((element) => observer.observe(element));
+}
+
+function updateTheme() {
+  document.documentElement.classList.toggle('dark', prefersDark);
+  dom.themeToggle.textContent = prefersDark ? '☀️' : '🌙';
+  localStorage.setItem(STORAGE_THEME, prefersDark ? 'dark' : 'light');
+}
+
+function initTheme() {
+  const storedTheme = localStorage.getItem(STORAGE_THEME);
+  prefersDark = storedTheme ? storedTheme === 'dark' : window.matchMedia('(prefers-color-scheme: dark)').matches;
+  updateTheme();
 }
 
 function init() {
   initTheme();
-  loadAuthState();
-  updateAuthState();
   loadFavorites();
+  loadRecentSearches();
+  updateStats();
   initCategoryCards();
   initFilterPills();
+  initSearchListeners();
+  initNewsletter();
+  initFAQAccordion();
   renderPlaces();
-  window.setTimeout(() => {
-    initMap(userLocation.lat, userLocation.lon);
-  }, 300);
+  renderSavedPlaces();
+  renderTrending();
+  renderMapMarkers();
+  updateMapDetails();
   initListeners();
-  initAuthListeners();
   initRevealAnimations();
-  showToast('🎉 Welcome to Around You! Explore nearby places.');
+  initTypingAnimation();
+  showToast('🎉 Welcome to Around You — discover nearby now!');
 }
 
 if (document.readyState === 'loading') {
